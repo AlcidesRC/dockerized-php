@@ -1,0 +1,5 @@
+.idea
+
+coverage/*
+
+caddy-root-ca-authority.crt
