@@ -75,7 +75,7 @@ The container service logs to `STDOUT` by default.
 #### Directory structure
 
 ```text
-├── build							# Docker-related configuration files
+├── build                           # Docker-related configuration files
 │   ├── Caddyfile                   # Caddy's configuration file
 │   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK command
 │   └── www.conf                    # PHP-FPM configuration file
@@ -85,7 +85,7 @@ The container service logs to `STDOUT` by default.
 ├── docker-compose.yml
 ├── Dockerfile
 ├── Makefile
-└── README.md						# This file
+└── README.md                       # This file
 ```
 
 #### Development Environment
