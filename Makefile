@@ -1,0 +1,258 @@
+.DEFAULT_GOAL := help
+
+###
+# CONSTANTS
+###
+
+ifneq (,$(findstring xterm,$(TERM)))
+	BLACK   := $(shell tput -Txterm setaf 0)
+	RED     := $(shell tput -Txterm setaf 1)
+	GREEN   := $(shell tput -Txterm setaf 2)
+	YELLOW  := $(shell tput -Txterm setaf 3)
+	BLUE    := $(shell tput -Txterm setaf 4)
+	MAGENTA := $(shell tput -Txterm setaf 5)
+	CYAN    := $(shell tput -Txterm setaf 6)
+	WHITE   := $(shell tput -Txterm setaf 7)
+	RESET   := $(shell tput -Txterm sgr0)
+else
+	BLACK   := ""
+	RED     := ""
+	GREEN   := ""
+	YELLOW  := ""
+	BLUE    := ""
+	MAGENTA := ""
+	CYAN    := ""
+	WHITE   := ""
+	RESET   := ""
+endif
+
+#---
+
+HOST_USER_ID    := $(shell id --user)
+HOST_USER_NAME  := $(shell id --user --name)
+HOST_GROUP_ID   := $(shell id --group)
+HOST_GROUP_NAME := $(shell id --group --name)
+
+#---
+
+SERVICE_APP   = app
+SERVICE_CADDY = caddy
+
+#---
+
+WEBSITE_URL = https://website.localhost
+
+#---
+
+DOCKER_COMPOSE_COMMAND = docker-compose
+
+DOCKER_RUN           = $(DOCKER_COMPOSE_COMMAND) run --rm $(SERVICE_APP)
+DOCKER_RUN_AS_USER   = $(DOCKER_COMPOSE_COMMAND) run --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+
+DOCKER_EXEC          = $(DOCKER_COMPOSE_COMMAND) exec $(SERVICE_APP)
+DOCKER_EXEC_AS_USER  = $(DOCKER_COMPOSE_COMMAND) exec --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+
+#---
+
+COMPOSER_FLAGS_ANSI_PROFILE = --ansi --profile
+COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS = --optimize-autoloader --with-all-dependencies
+
+###
+# FUNCTIONS
+###
+
+require-%:
+	@if [ -z "$($(*))" ] ; then \
+		echo "" ; \
+		echo " ${RED}⨉${RESET} Parameter [ ${YELLOW}${*}${RESET} ] is required!" ; \
+		echo "" ; \
+		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make COMMAND${RESET} ${RED}${*}=${RESET}${YELLOW}xxxxxx${RESET} ]" ; \
+		echo "" ; \
+		exit 1 ; \
+	fi;
+
+define taskDone
+	@echo ""
+	@echo " ${GREEN}✓${RESET}  ${GREEN}Task done!${RESET}"
+	@echo ""
+endef
+
+# $(1)=TEXT $(2)=EXTRA
+define showInfo
+	@echo " ${YELLOW}ℹ${RESET}  $(1) $(2)"
+endef
+
+# $(1)=TEXT $(2)=EXTRA
+define showAlert
+	@echo " ${RED}!${RESET}  $(1) $(2)"
+endef
+
+# $(1)=NUMBER $(2)=TEXT
+define orderedList
+	@echo ""
+	@echo " ${CYAN}$(1).${RESET}  ${CYAN}$(2)${RESET}"
+	@echo ""
+endef
+
+###
+# HELP
+###
+
+.PHONY: help
+help:
+	@clear
+	@echo "╔══════════════════════════════════════════════════════════════════════════════╗"
+	@echo "║                                                                              ║"
+	@echo "║                           ${YELLOW}.:${RESET} AVAILABLE COMMANDS ${YELLOW}:.${RESET}                           ║"
+	@echo "║                                                                              ║"
+	@echo "╚══════════════════════════════════════════════════════════════════════════════╝"
+	@echo ""
+	@grep -E '^[a-zA-Z_0-9%-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "· ${YELLOW}%-30s${RESET} %s\n", $$1, $$2}'
+	@echo ""
+
+###
+# DOCKER RELATED
+###
+
+.PHONY: build
+build: ## Docker: builds the service
+	@$(DOCKER_COMPOSE_COMMAND) build --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
+	$(call taskDone)
+
+.PHONY: up
+up: ## Docker: starts the service
+	@$(DOCKER_COMPOSE_COMMAND) up --remove-orphans --detach
+	$(call taskDone)
+
+.PHONY: restart
+restart: ## Docker: restarts the service
+	@$(DOCKER_COMPOSE_COMMAND) restart $(SERVICE_APP)
+	$(call taskDone)
+
+.PHONY: down
+down: ## Docker: stops the service
+	@$(DOCKER_COMPOSE_COMMAND) down --remove-orphans
+	$(call taskDone)
+
+.PHONY: logs
+logs: ## Docker: exposes the service logs
+	@$(DOCKER_COMPOSE_COMMAND) logs
+	$(call taskDone)
+
+.PHONY: bash
+bash: ## Docker: establish a bash session into main container
+	$(DOCKER_RUN_AS_USER) bash
+
+###
+# CADDY
+###
+
+.PHONY: install-caddy-certificate
+install-caddy-certificate: ## Setup: installs Caddy Local Authority certificate
+	@echo "Installing [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
+	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
+	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
+	$(call orderedList,2,"Install the Caddy Authority certificate into your browser")
+	@echo "$(YELLOW)Chrome-based browsers (Chrome, Brave, etc)$(RESET)"
+	@echo "- Go to [ Settings / Privacy & Security / Security / Manage Certificates / Authorities ]"
+	@echo "- Import [ ./caddy-root-ca-authority.crt ]"
+	@echo "- Check on [ Trust this certificate for identifying websites ]"
+	@echo "- Save changes"
+	@echo ""
+	@echo "$(YELLOW)Firefox browser$(RESET)"
+	@echo "- Go to [ Settings / Privacy & Security / Security / Certificates / View Certificates / Authorities ]"
+	@echo "- Import [ ./caddy-root-ca-authority.crt ]"
+	@echo "- Check on [ This certificate can identify websites ]"
+	@echo "- Save changes"
+	@echo ""
+	$(call showInfo,"For further information, please visit https://caddyserver.com/docs/running#docker-compose")
+	$(call taskDone)
+
+###
+# MISCELANEOUS
+###
+
+.PHONY: show-context
+show-context: ## Setup: show context
+	$(call showInfo,"Showing context")
+	@echo "    · Domain     : ${YELLOW}${WEBSITE_URL}${RESET}"
+	@echo "    · Host user  : (${YELLOW}${HOST_USER_ID}${RESET}) ${YELLOW}${HOST_USER_NAME}${RESET}"
+	@echo "    · Host group : (${YELLOW}${HOST_GROUP_ID}${RESET}) ${YELLOW}${HOST_GROUP_NAME}${RESET}"
+	@echo "    · Service(s) : ${YELLOW}${SERVICE_APP}${RESET}, ${YELLOW}${SERVICE_CADDY}${RESET}"
+	@echo ""
+	$(call showInfo,"SSL")
+	@echo "    · Please execute [ ${YELLOW}make install-caddy-certificate${RESET} ] to register ${CYAN}Caddy's Root Certificate${RESET} on your browser"
+	$(call taskDone)
+
+###
+# COMPOSER
+###
+
+.PHONY: composer-dump
+composer-dump: ## Application: <composer dump-auto>
+	$(DOCKER_RUN_AS_USER) composer dump-auto $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize --strict-psr
+	$(call taskDone)
+
+.PHONY: composer-install
+composer-install: ## Application: <composer install>
+	$(DOCKER_RUN_AS_USER) composer install $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize-autoloader --audit
+	$(call taskDone)
+
+.PHONY: composer-remove
+composer-remove: require-packages ## Application: <composer remove>
+	$(DOCKER_RUN_AS_USER) composer remove $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --no-interaction --unused $(packages)
+	$(call taskDone)
+
+.PHONY: composer-require-dev
+composer-require-dev: ## Application: <composer require --dev>
+	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages --dev
+	$(call taskDone)
+
+.PHONY: composer-require
+composer-require: ## Application: <composer require>
+	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages
+	$(call taskDone)
+
+.PHONY: composer-update
+composer-update: ## Application: <composer update>
+	$(DOCKER_RUN_AS_USER) composer update $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --no-interaction
+	$(call taskDone)
+
+###
+# QA
+###
+
+.PHONY: linter
+linter: ## QA: <composer linter>
+	$(DOCKER_RUN) composer linter
+	$(call taskDone)
+
+.PHONY: phpcs
+phpcs: ## QA: <composer phpcbs>
+	$(DOCKER_RUN) composer phpcs
+	$(call taskDone)
+
+.PHONY: phpcbf
+phpcbf: ## QA: <composer phpcbf>
+	$(DOCKER_RUN) composer phpcbf
+	$(call taskDone)
+
+.PHONY: phpstan
+phpstan: ## QA: <composer phpstan>
+	$(DOCKER_RUN) composer phpstan
+	$(call taskDone)
+
+.PHONY: tests
+tests: ## QA: <composer tests>
+	$(DOCKER_RUN) composer tests
+	$(call taskDone)
+
+.PHONY: coverage
+coverage: ## QA: <composer coverage>
+	$(DOCKER_RUN) composer coverage
+	$(call taskDone)
+
+.PHONY: clean-cache
+clean-cache: ## QA: <composer clean-cache>
+	$(DOCKER_RUN) composer clean-cache
+	$(call taskDone)
