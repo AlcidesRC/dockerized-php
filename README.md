@@ -1,3 +1,5 @@
+[![Continuous Integration](https://github.com/fonil/dockerized-php/actions/workflows/ci.yml/badge.svg)](https://github.com/fonil/dockerized-php/actions/workflows/ci.yml)
+
 # Dockerized PHP
 
 > A _dockerized_ container based on PHP-FPM image
