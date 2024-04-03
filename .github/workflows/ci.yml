@@ -10,19 +10,20 @@ permissions:
     contents: read
 
 jobs:
-    build:
+    tests:
         runs-on: ${{ matrix.os }}
 
         env:
             ENV: DEVELOPMENT
 
         strategy:
+            fail-fast: true
             matrix:
                 os: [ubuntu-latest]
                 php: ['8.2', '8.3']
-                dependency-version: [prefer-lowest, prefer-stable]
+                dependency_version: [prefer-dist, prefer-source]
 
-        name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
+        name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency_version }}
 
         steps:
             - name: Checkout
@@ -48,7 +49,7 @@ jobs:
                       ${{ runner.os }}-php-
 
             - name: Install PHP dependencies
-              run: composer install --working-dir=./src --prefer-dist --no-progress
+              run: composer install --working-dir=./src --${{ matrix.dependency_version }} --no-interaction --no-progress --ansi
 
             - name: Check Coding Standards
               run: ./src/vendor/bin/phpcs --standard=./src/phpcs.xml ./src/app ./src/tests
