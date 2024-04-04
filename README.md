@@ -2,26 +2,24 @@
 
 # Dockerized PHP
 
-> A _dockerized_ container based on PHP-FPM image
+
+> A _dockerized_ environment based on PHP-FPM running on a Linux Alpine container. 
+
 
 [TOC]
 
+
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.4-fpm-alpine** with or without Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.4-fpm-alpine** with -or without- Caddy support.
+
 
 ### Highlights
 
-- **Self-signed local domains** thanks to Caddy.
-- Unified environment to build CLI[^1], web applications and/or micro-services based on **PHP8**.
+- Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u> and/or <u>micro-services</u> based on **PHP8**.
 - Allows you to create an optimized **development environment** Docker image
 - Allows you to create an optimized **production-ready** Docker image
-- A *Makefile* with frequent commands is provided
-
-
-
-[^1]: Command Line Interface applications
-
+- If you are building web applications, this repository brings **self-signed local domains** thanks to Caddy.
 
 
 ## Requirements
@@ -30,7 +28,6 @@ To use this repository you need:
 
 - [Docker](https://www.docker.com/) - An open source containerization platform.
 - [Git](https://git-scm.com/) - The free and open source distributed version control system.
-
 
 
 ## Built with
@@ -62,12 +59,12 @@ $ git clone git@github.com:fonil/dockerized-php.git .
 
 ##### Healthcheck
 
-A shell script is provided to allows Docker's deamon to check the container service via `HEALTHCHECK` directive. 
+A custom health check shell script is provided to check the container service via `HEALTHCHECK` directive. 
+
+This shell script returns a SIGINT if the PHP-FPM service can handle a valid request to FPM `ping` status endpoint.  
 
 
-
-> This health check is defined in the `Dockerfile`
-
+> This health check directive is defined at `Dockerfile` instead of `docker-compose.yml`
 
 
 #### Logging
@@ -79,11 +76,11 @@ The container service logs to `STDOUT` by default.
 ```text
 ├── build                           # Docker-related configuration files
 │   ├── Caddyfile                   # Caddy's configuration file
-│   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK command
+│   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK  directive
 │   └── www.conf                    # PHP-FPM configuration file
 ├── coverage                        # Code Coverage HTML dashboard
 ├── src                             # PHP application folder
-├── caddy-root-ca-authority.crt     # Generated file with the Caddy Root CA Authority details
+├── caddy-root-ca-authority.crt     # Generated certificate file with Caddy Root CA Authority details
 ├── docker-compose.yml
 ├── Dockerfile
 ├── Makefile
@@ -102,9 +99,7 @@ There are some volumes created between the *host* and the container service:
 | `./coverage` | `/coverage`    | Code Coverage HTML dashboard folder |
 
 
-
 > Those volumes can be customized in the `docker-compose.yml` file
-
 
 
 ##### Available Commands
@@ -151,20 +146,17 @@ $ docker run -it --rm app:development bash
 
 ##### Web application
 
-If you are creating a web application and needs a web server to interact with your PHP application, this repository provides an easy way to do it with Caddy, which <u>uses HTTPS by default</u>.
+If you are developing web applications (which requires a web server) this repository brings a clean integration with Caddy, which <u>uses HTTPS by default</u>.
 
 ###### Website domain
 
 The default website domain is `https://website.localhost`
 
 
-
-> If you want to customize the default website domain please, please update the file `build/Caddyfile` accordingly 
-
+> Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
 
 
-> Additionally please update the _Makefile_  in where you can find a constant containing the current application domain name
-
+> If you want to customize the default website domain please update the files `build/Caddyfile` and `Makefile` accordingly.
 
 
 ###### Certificate Authority (CA) & SSL Certificate
@@ -172,13 +164,10 @@ The default website domain is `https://website.localhost`
 If you experiment any SSL certificate issue on your *host*, please register the **Caddy Authority Certificate** on your browser. 
 
 
-
-> A _Makefile_ command is provided called `make install-caddy-certificate` and guides you on this process.
-
+> A _Makefile_ command is provided called `make install-caddy-certificate` which guides you on this whole process.
 
 
 > This is a one-time action due the certificate does not change after rebuilding/restarting the service.
-
 
 
 ##### PHP Application
@@ -186,9 +175,7 @@ If you experiment any SSL certificate issue on your *host*, please register the 
 PHP application must be placed into `src` folder.
 
 
-
-> If you are starting a new PHP application from scratch, please consider start using [PHP Skeleton](https://github.com/fonil/php-skeleton)
-
+> If you are starting a new application from scratch, please consider using [PHP Skeleton](https://github.com/fonil/php-skeleton)
 
 
 ##### Testing
@@ -198,9 +185,7 @@ PHP application must be placed into `src` folder.
 Testing with date and/or time variations sometimes can be a nightmare. To assist on this topic the **UOPZ** extension has been installed and enabled in the container.
 
 
-
 > You should add [slope-it/clock-mock](https://github.com/slope-it/clock-mock) as a development dependency into your `src/composer.json`. This library provides a way for mocking the current timestamp used by PHP for `\DateTime(Immutable)` objects and date/time related functions.
-
 
 
 #### Production Environment
@@ -216,7 +201,6 @@ $ docker buildx build --target=build-production --tag="app:production" .
 ```bash
 $ docker run -it --rm app:production sh
 ```
-
 
 
 ## Security Vulnerabilities
