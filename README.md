@@ -220,7 +220,7 @@ $ docker buildx build \
 
 
 
-> The default PHP-FPM user is `www-data`  which has `82` as user ID  
+> The default PHP-FPM user/group name is `www-data`, having `82` as user/group ID  
 
 
 
