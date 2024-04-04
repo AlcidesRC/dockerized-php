@@ -208,16 +208,8 @@ Testing with date and/or time variations sometimes can be a nightmare. To assist
 ##### Building the Docker image
 
 ```bash
-$ docker buildx build \
---target=build-production \
---build-arg="HOST_USER_ID=82" \
---build-arg="HOST_USER_NAME=www-data" \
---build-arg="HOST_GROUP_ID=82" \
---build-arg="HOST_GROUP_NAME=www-data" \
---tag="app:production" \
-.
+$ docker buildx build --target=build-production --tag="app:production" .
 ```
-
 
 
 > The default PHP-FPM user/group name is `www-data`, having `82` as user/group ID  
