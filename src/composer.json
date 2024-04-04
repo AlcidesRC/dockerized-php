@@ -47,8 +47,8 @@
             "@clear-coverage",
             "phpunit --configuration phpunit.xml --coverage-text --coverage-html=/coverage --colors --testdox --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")"
         ],
-        "phpcs": "phpcs -p --colors --standard=PSR12 app/ tests/",
-        "phpcbf": "phpcbf -p --colors --standard=PSR12 app/ tests/",
+        "phpcs": "phpcs -p --colors --standard=phpcs.xml app/ tests/",
+        "phpcbf": "phpcbf -p --colors --standard=phpcs.xml app/ tests/",
         "linter": "parallel-lint --colors -e php -j 10 app/ tests/",
         "phpstan": "phpstan analyse --ansi --memory-limit=1G --configuration=phpstan.neon"
     },
