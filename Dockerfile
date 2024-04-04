@@ -95,6 +95,12 @@ RUN composer dump-autoload \
 
 FROM common AS build-production
 
+ARG HOST_USER_ID=82
+ARG HOST_USER_NAME=www-data
+
+ARG HOST_GROUP_ID=82
+ARG HOST_GROUP_NAME=www-data
+
 ENV ENV=PRODUCTION
 
 COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /code
