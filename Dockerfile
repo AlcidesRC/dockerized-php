@@ -12,6 +12,7 @@ FROM base-image AS common
 RUN apk update && apk add --no-cache \
     	fcgi
 
+# Ensure the `healthcheck.sh` can be executed inside the container
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
 HEALTHCHECK \
     --interval=10s \
@@ -82,7 +83,7 @@ RUN composer install \
     --prefer-dist \
     --no-dev
 
-# Just copy the PHP application folder without the ./src/vendor folder
+# Ensure to copy __ONLY__ the PHP application folder(s) without the `./src/vendor` folder
 COPY src/app /app/app
 COPY src/public /app/public
 
