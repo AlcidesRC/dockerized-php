@@ -211,11 +211,6 @@ Testing with date and/or time variations sometimes can be a nightmare. To assist
 $ docker buildx build --target=build-production --tag="app:production" .
 ```
 
-
-> The default PHP-FPM user/group name is `www-data`, having `82` as user/group ID  
-
-
-
 ##### Accessing the container service
 
 ```bash
