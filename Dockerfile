@@ -42,10 +42,10 @@ COPY --from=extensions-builder /usr/local/lib/php/extensions/*/* /usr/local/lib/
 
 FROM common AS build-development
 
-ARG HOST_USER_ID=1000
+ARG HOST_USER_ID=1001
 ARG HOST_USER_NAME=host-user-name
 
-ARG HOST_GROUP_ID=1000
+ARG HOST_GROUP_ID=1001
 ARG HOST_GROUP_NAME=host-group-name
 
 ENV ENV=DEVELOPMENT
@@ -95,12 +95,6 @@ RUN composer dump-autoload \
 # STAGE: BUILD-PRODUCTION
 
 FROM common AS build-production
-
-ARG HOST_USER_ID=82
-ARG HOST_USER_NAME=www-data
-
-ARG HOST_GROUP_ID=82
-ARG HOST_GROUP_NAME=www-data
 
 ENV ENV=PRODUCTION
 
