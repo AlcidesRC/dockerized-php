@@ -3,3 +3,4 @@ parameters:
 	paths:
 		- app
 		- tests
+	tmpDir: /tmp

@@ -42,14 +42,18 @@
         "linter": "parallel-lint --colors -e php -j 10 app/ tests/",
         "phpcs": "phpcs -p --colors --standard=phpcs.xml app/ tests/",
         "phpcbf": "phpcbf -p --colors --standard=phpcs.xml app/ tests/",
-        "phpstan": "phpstan analyse --ansi --memory-limit=1G --configuration=phpstan.neon",
-        "phpunit": "phpunit --configuration phpunit.xml --colors --testdox --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+        "phpstan": "phpstan analyse --ansi --configuration=phpstan.neon --memory-limit=1G --no-progress",
+        "phpunit": "phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+
         "tests": [
+            "@linter",
             "@phpcs",
             "@phpunit --coverage-text"
         ],
+
         "coverage": [
             "rm -Rf /coverage/*",
+            "@linter",
             "@phpcs",
             "@phpunit --coverage-text --coverage-html=/coverage"
         ]
