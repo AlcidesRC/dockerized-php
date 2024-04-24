@@ -35,22 +35,24 @@
         "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^11.0",
         "slope-it/clock-mock": "^0.4.0",
-        "squizlabs/php_codesniffer": "^3.9"
+        "squizlabs/php_codesniffer": "^3.9",
+        "symfony/var-dumper": "^7.0"
     },
     "scripts": {
-        "clear-coverage": "rm -Rf /coverage/*",
-        "tests": [
-            "phpcs -p --standard=PSR2 --runtime-set ignore_errors_on_exit 1 --runtime-set ignore_warnings_on_exit 1 app/ tests/",
-            "phpunit --configuration phpunit.xml --no-coverage --colors --testdox --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")"
-        ],
-        "coverage": [
-            "@clear-coverage",
-            "phpunit --configuration phpunit.xml --coverage-text --coverage-html=/coverage --colors --testdox --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")"
-        ],
+        "linter": "parallel-lint --colors -e php -j 10 app/ tests/",
         "phpcs": "phpcs -p --colors --standard=phpcs.xml app/ tests/",
         "phpcbf": "phpcbf -p --colors --standard=phpcs.xml app/ tests/",
-        "linter": "parallel-lint --colors -e php -j 10 app/ tests/",
-        "phpstan": "phpstan analyse --ansi --memory-limit=1G --configuration=phpstan.neon"
+        "phpstan": "phpstan analyse --ansi --memory-limit=1G --configuration=phpstan.neon",
+        "phpunit": "phpunit --configuration phpunit.xml --colors --testdox --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+        "tests": [
+            "@phpcs",
+            "@phpunit --coverage-text"
+        ],
+        "coverage": [
+            "rm -Rf /coverage/*",
+            "@phpcs",
+            "@phpunit --coverage-text --coverage-html=/coverage"
+        ]
     },
     "minimum-stability": "stable",
     "prefer-stable": true

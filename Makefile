@@ -205,12 +205,12 @@ composer-remove: require-packages ## Application: <composer remove>
 
 .PHONY: composer-require-dev
 composer-require-dev: ## Application: <composer require --dev>
-	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages --dev
+	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --sort-packages --dev
 	$(call taskDone)
 
 .PHONY: composer-require
 composer-require: ## Application: <composer require>
-	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages
+	$(DOCKER_RUN_AS_USER) composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --sort-packages
 	$(call taskDone)
 
 .PHONY: composer-update
@@ -228,7 +228,7 @@ linter: ## QA: <composer linter>
 	$(call taskDone)
 
 .PHONY: phpcs
-phpcs: ## QA: <composer phpcbs>
+phpcs: ## QA: <composer phpcs>
 	$(DOCKER_RUN) composer phpcs
 	$(call taskDone)
 
@@ -250,9 +250,4 @@ tests: ## QA: <composer tests>
 .PHONY: coverage
 coverage: ## QA: <composer coverage>
 	$(DOCKER_RUN) composer coverage
-	$(call taskDone)
-
-.PHONY: clean-cache
-clean-cache: ## QA: <composer clean-cache>
-	$(DOCKER_RUN) composer clean-cache
 	$(call taskDone)
