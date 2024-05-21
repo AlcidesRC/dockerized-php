@@ -56,16 +56,24 @@ RUN apk update && apk add --no-cache \
         ncurses \
     && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
         pcov \
-        uopz
+        uopz \
+        xdebug
 
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 
+# Add custom user to www-data group
 RUN addgroup --gid ${HOST_GROUP_ID} ${HOST_GROUP_NAME} \
     && adduser --shell /bin/bash --uid ${HOST_USER_ID} --ingroup ${HOST_GROUP_NAME} --ingroup www-data --disabled-password --gecos '' ${HOST_USER_NAME}
 
+# Setup PHP-FPM
 COPY build/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i -r "s/USER-NAME/${HOST_USER_NAME}/g" /usr/local/etc/php-fpm.d/www.conf \
     && sed -i -r "s/GROUP-NAME/${HOST_GROUP_NAME}/g" /usr/local/etc/php-fpm.d/www.conf
+
+# Setup xDebug
+COPY build/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN touch /var/log/xdebug.log \
+    && chmod 0777 /var/log/xdebug.log
 
 
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
