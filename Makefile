@@ -44,7 +44,7 @@ WEBSITE_URL = https://website.localhost
 
 #---
 
-DOCKER_COMPOSE_COMMAND = docker-compose
+DOCKER_COMPOSE_COMMAND = docker compose
 
 DOCKER_RUN           = $(DOCKER_COMPOSE_COMMAND) run --rm $(SERVICE_APP)
 DOCKER_RUN_AS_USER   = $(DOCKER_COMPOSE_COMMAND) run --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
