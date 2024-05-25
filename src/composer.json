@@ -24,10 +24,11 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
-    },
-    "require": {
-        "php": "^8.3"
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "infection/extension-installer": true
+        }
     },
     "require-dev": {
         "php-parallel-lint/php-console-highlighter": "^1.0",
