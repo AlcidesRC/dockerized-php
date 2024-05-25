@@ -2,40 +2,34 @@
 
 # STAGE: BASE-IMAGE
 
-FROM php:8.3.7-fpm-alpine AS base-image
+FROM php:8.3-fpm-alpine AS base-image
 
 
 # STAGE: COMMON
 
 FROM base-image AS common
 
+WORKDIR /code
+
+# Add OS dependencies
 RUN apk update && apk add --no-cache \
     	fcgi
 
+# Add a custom HEALTHCHECK script
 # Ensure the `healthcheck.sh` can be executed inside the container
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
-HEALTHCHECK \
-    --interval=10s \
-    --timeout=1s \
-    --retries=3 \
-    CMD /healthcheck.sh
-
-WORKDIR /code
+HEALTHCHECK --interval=10s --timeout=1s --retries=3 CMD /healthcheck.sh
 
 
 # STAGE: EXTENSIONS-BUILDER
 
 FROM base-image AS extensions-builder
 
+# Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        zip
-
-
-# STAGE: EXTENSIONS-SETUP
-
-FROM base-image AS extensions-setup
-
-COPY --from=extensions-builder /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
+        pcov \
+        uopz \
+        xdebug
 
 
 # STAGE: BUILD-DEVELOPMENT
@@ -44,22 +38,24 @@ FROM common AS build-development
 
 ARG HOST_USER_ID=1001
 ARG HOST_USER_NAME=host-user-name
-
 ARG HOST_GROUP_ID=1001
 ARG HOST_GROUP_NAME=host-group-name
 
 ENV ENV=DEVELOPMENT
 
+# Add __ONLY__ compiled extensions & their config files 
+COPY --from=extensions-builder /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
+COPY --from=extensions-builder /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
+
+# Add Composer from public Docker image
+COPY --from=composer /usr/bin/composer /usr/bin/composer
+
+# Add OS dependencies related with development
 RUN apk update && apk add --no-cache \
         bash \
         make \
         ncurses \
-    && curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        pcov \
-        uopz \
-        xdebug
-
-COPY --from=composer /usr/bin/composer /usr/bin/composer
+        util-linux
 
 # Add custom user to www-data group
 RUN addgroup --gid ${HOST_GROUP_ID} ${HOST_GROUP_NAME} \
@@ -80,8 +76,10 @@ RUN touch /var/log/xdebug.log \
 
 FROM composer as optimize-php-dependencies
 
+# First copy Composer files
 COPY ./src/composer.json ./src/composer.lock /app/
 
+# Docker will cache this step and reuse it if no any change has being done on previuos step
 RUN composer install \
     --ignore-platform-reqs \
     --no-ansi \
@@ -95,6 +93,7 @@ RUN composer install \
 COPY src/app /app/app
 COPY src/public /app/public
 
+# Recompile application cache
 RUN composer dump-autoload \
 	--optimize \
 	--classmap-authoritative
@@ -106,8 +105,11 @@ FROM common AS build-production
 
 ENV ENV=PRODUCTION
 
+# Add the optimized for production application
 COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /code
 
+# Setup PHP-FPM
 COPY build/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i -r "s/USER-NAME/www-data/g" /usr/local/etc/php-fpm.d/www.conf \
     && sed -i -r "s/GROUP-NAME/www-data/g" /usr/local/etc/php-fpm.d/www.conf
+
