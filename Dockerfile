@@ -1,11 +1,14 @@
 # syntax=docker/dockerfile:1
 
+#----------------------------------------------------------
 # STAGE: BASE-IMAGE
+#----------------------------------------------------------
 
-FROM php:8.3-fpm-alpine AS base-image
+FROM php:8.3.7-fpm-alpine AS base-image
 
-
+#----------------------------------------------------------
 # STAGE: COMMON
+#----------------------------------------------------------
 
 FROM base-image AS common
 
@@ -13,17 +16,28 @@ WORKDIR /code
 
 # Add OS dependencies
 RUN apk update && apk add --no-cache \
-    	fcgi
+        fcgi
 
 # Add a custom HEALTHCHECK script
 # Ensure the `healthcheck.sh` can be executed inside the container
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
 HEALTHCHECK --interval=10s --timeout=1s --retries=3 CMD /healthcheck.sh
 
+#----------------------------------------------------------
+# STAGE: EXTENSIONS-BUILDER-COMMON
+#----------------------------------------------------------
 
-# STAGE: EXTENSIONS-BUILDER
+FROM base-image AS extensions-builder-common
 
-FROM base-image AS extensions-builder
+# Add, compile and configure PHP extensions
+RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
+        opcache
+
+#----------------------------------------------------------
+# STAGE: EXTENSIONS-BUILDER-DEV
+#----------------------------------------------------------
+
+FROM extensions-builder-common AS extensions-builder-dev
 
 # Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
@@ -31,8 +45,9 @@ RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases
         uopz \
         xdebug
 
-
+#----------------------------------------------------------
 # STAGE: BUILD-DEVELOPMENT
+#----------------------------------------------------------
 
 FROM common AS build-development
 
@@ -44,8 +59,8 @@ ARG HOST_GROUP_NAME=host-group-name
 ENV ENV=DEVELOPMENT
 
 # Add __ONLY__ compiled extensions & their config files 
-COPY --from=extensions-builder /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
-COPY --from=extensions-builder /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
+COPY --from=extensions-builder-dev /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
+COPY --from=extensions-builder-dev /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add Composer from public Docker image
 COPY --from=composer /usr/bin/composer /usr/bin/composer
@@ -71,8 +86,9 @@ COPY build/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN touch /var/log/xdebug.log \
     && chmod 0777 /var/log/xdebug.log
 
-
+#----------------------------------------------------------
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
+#----------------------------------------------------------
 
 FROM composer as optimize-php-dependencies
 
@@ -95,15 +111,20 @@ COPY src/public /app/public
 
 # Recompile application cache
 RUN composer dump-autoload \
-	--optimize \
-	--classmap-authoritative
+    --optimize \
+    --classmap-authoritative
 
-
+#----------------------------------------------------------
 # STAGE: BUILD-PRODUCTION
+#----------------------------------------------------------
 
 FROM common AS build-production
 
 ENV ENV=PRODUCTION
+
+# Add __ONLY__ compiled extensions & their config files 
+COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
+COPY --from=extensions-builder-common /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add the optimized for production application
 COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /code
