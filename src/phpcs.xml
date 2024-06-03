@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- @see https://pear.php.net/manual/en/package.php.php-codesniffer.annotated-ruleset.php -->
-<ruleset name= "Dockerized PHP Dev Env PHPCS Rules">
+<ruleset name= "PHP Skeleton PHPCS Rules">
 
     <description>PHPCS ruleset for Example app.</description>
 
