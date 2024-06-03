@@ -8,14 +8,10 @@
 
 This repository contains an application skeleton following best practices.
 
-
-
 ### Highlights
 
 - Unified environment to build CLI, web applications and/or microservices based on **PHP8**.
-- Includes **PCOV**, **PHPCS/PHPCBF**, **PHPUnit**, **UOPZ**, **PHPStan** and a **linter** by default.
-
-
+- Includes **PCOV**, **PHPCS/PHPCBF**, **PHPUnit**, **UOPZ**, **PHPStan** and a **Linter** by default.
 
 ## Requirements
 
@@ -30,8 +26,6 @@ To use this repository you need:
 - [UOPZ](https://www.php.net/manual/en/book.uopz.php) - In order to allow mocking date/time functions
 - [PCOV](https://github.com/krakjoe/pcov) - In order to generate the PHP code coverage report
 
-
-
 ## Built with
 
 | Type              | Component                                                    | Description                                                  |
@@ -42,8 +36,6 @@ To use this repository you need:
 | Quality Assurance | [PHPCS/PHPCBF](https://github.com/PHPCSStandards/PHP_CodeSniffer/) | Allows to check and fix coding style issues                  |
 | Quality Assurance | [PHPStan](https://phpstan.org/)                              | Allows to perform static analysis of your application looking for issues |
 | Quality Assurance | [PHPUnit](https://phpunit.de/)                               | The PHP Testing Framework                                    |
-
-
 
 ## Getting Started
 
@@ -82,15 +74,15 @@ Custom commands are added to `composer.json` under the `scripts` section.
 
 ##### Available commands
 
-| Command          | Description                                                              |
-|------------------|--------------------------------------------------------------------------|
-| `clear-coverage` | Removes any previous HTML code coverage report                           |
-| `tests`          | Runs PHPUnit with the specs defined at `phpunit.xml` configuration file  |
-| `coverage`       | Generates the HTML code coverage report                                  |
-| `phpcs`          | Runs the PHP Check Style command following the PSR-12                    |
-| `phpcbf`         | Runs the PHP Code Beautifier and Fixer command following the PSR-12      |
-| `linter`         | Runs the linter in parallel mode                                         |
-| `phpstan`        | Runs PHPStan with the specs defined at `phpstan.neon` configuration file |
+| Command    | Description                                                              |
+|------------|--------------------------------------------------------------------------|
+| `linter`   | Runs the linter in parallel mode                                         |
+| `phpcs`    | Runs the PHP Check Style command following the PSR-12                    |
+| `phpcbf`   | Runs the PHP Code Beautifier and Fixer command following the PSR-12      |
+| `phpstan`  | Runs PHPStan with the specs defined at `phpstan.neon` configuration file |
+| `phpunit`  | Runs PHPUnit with the specs defined at `phpunit.xml` configuration file  |
+| `tests`    | Runs PHPUnit without any code coverage support                           |
+| `coverage` | Runs PHPUnit with code coverage support                                  |
 
 ##### Makefile
 
@@ -105,26 +97,17 @@ Additionally a *Makefile* is provided with frequently used commands:
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-· composer-dump                  Application: <composer dump-auto>
-· composer-install               Application: <composer install>
-· composer-remove                Application: <composer remove>
-· composer-require-dev           Application: <composer require --dev>
-· composer-require               Application: <composer require>
-· composer-update                Application: <composer update>
-· linter                         QA: <composer linter>
-· phpcs                          QA: <composer phpcbs>
-· phpcbf                         QA: <composer phpcbf>
-· phpstan                        QA: <composer phpstan>
-· tests                          QA: <composer tests>
-· coverage                       QA: <composer coverage>
-· clean-cache                    QA: <composer clean-cache>
+· build                          Docker: builds the service
+· up                             Docker: starts the service
+· restart                        Docker: restarts the service
+· down                           Docker: stops the service
+· logs                           Docker: exposes the service logs
+· bash                           Docker: establish a bash session into main container
+· install-caddy-certificate      Setup: installs Caddy Local Authority certificate
+· show-context                   Setup: show context
 ```
 
-
-
 > This file is really useful when you create a container with a project based on this repository, and you want to run those commands from outside the container. To do so just copy and paste the included steps on your main *Makefile* and adjust the constants accordingly.
-
-
 
 #### Volumes
 
@@ -132,11 +115,7 @@ Additionally a *Makefile* is provided with frequently used commands:
 
 Coverage report in HTML is generated on a root folder `/coverage`
 
-
-
 > If you want the report is generated on a different path, just update accordingly the `composer.json` file under the section `scripts`  
-
- 
 
 ## Security Vulnerabilities
 

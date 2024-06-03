@@ -44,7 +44,7 @@
         "phpcs": "phpcs -p --colors --standard=phpcs.xml app/ tests/",
         "phpcbf": "phpcbf -p --colors --standard=phpcs.xml app/ tests/",
         "phpstan": "phpstan analyse --ansi --configuration=phpstan.neon --memory-limit=1G --no-progress",
-        "phpunit": "phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+        "phpunit": "php -d xdebug.mode=off phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
 
         "tests": [
             "@linter",

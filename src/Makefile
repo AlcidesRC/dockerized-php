@@ -28,6 +28,10 @@ endif
 
 #---
 
+RANDOM_SEED := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
+
+#---
+
 COMPOSER_FLAGS_ANSI_PROFILE = --ansi --profile
 COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS = --optimize-autoloader --with-all-dependencies
 
@@ -127,15 +131,12 @@ phpstan: ## QA: <composer phpstan>
 
 .PHONY: tests
 tests: ## QA: <composer tests>
-	@composer tests
+	@$(eval testsuite ?= 'Unit')
+	@$(eval filter ?= '.')
+	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=$(testsuite) --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: coverage
 coverage: ## QA: <composer coverage>
 	@composer coverage
-	$(call taskDone)
-
-.PHONY: clean-cache
-clean-cache: ## QA: <composer clean-cache>
-	@composer clean-cache
 	$(call taskDone)
