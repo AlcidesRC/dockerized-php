@@ -40,8 +40,6 @@ To use this repository you need:
 | Miscelaneous      | [Bash](https://www.gnu.org/software/bash/)                                  | Allows to create an interactive shell within main service                |
 | Miscelaneous      | [Make](https://www.gnu.org/software/make/)                                  | Allows to execute commands defined on a _Makefile_                       |
 
-
-
 ## Getting Started
 
 Just clone the repository into your preferred path:
@@ -63,7 +61,8 @@ A custom health check shell script is provided to check the container service vi
 
 This shell script returns a SIGINT if the PHP-FPM service can handle a valid request to FPM `ping` status endpoint.  
 
-
+> [!NOTE]
+>
 > This health check directive is defined at `Dockerfile` instead of `docker-compose.yml`
 
 
@@ -152,10 +151,12 @@ If you are developing web applications (which requires a web server) this reposi
 
 The default website domain is `https://website.localhost`
 
-
+> [!IMPORTANT]
+>
 > Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
 
-
+> [!TIP]
+>
 > If you want to customize the default website domain please update the files `build/Caddyfile` and `Makefile` accordingly.
 
 
@@ -163,10 +164,10 @@ The default website domain is `https://website.localhost`
 
 If you experiment any SSL certificate issue on your *host*, please register the **Caddy Authority Certificate** on your browser. 
 
-
+> [!TIP]
+>
 > A _Makefile_ command is provided called `make install-caddy-certificate` which guides you on this whole process.
-
-
+>
 > This is a one-time action due the certificate does not change after rebuilding/restarting the service.
 
 
@@ -174,7 +175,8 @@ If you experiment any SSL certificate issue on your *host*, please register the 
 
 PHP application must be placed into `src` folder.
 
-
+> [!TIP]
+>
 > If you are starting a new application from scratch, please consider using [PHP Skeleton](https://github.com/fonil/php-skeleton)
 
 
@@ -184,7 +186,8 @@ PHP application must be placed into `src` folder.
 
 Testing with date and/or time variations sometimes can be a nightmare. To assist on this topic the **UOPZ** extension has been installed and enabled in the container.
 
-
+> [!TIP]
+>
 > You should add [slope-it/clock-mock](https://github.com/slope-it/clock-mock) as a development dependency into your `src/composer.json`. This library provides a way for mocking the current timestamp used by PHP for `\DateTime(Immutable)` objects and date/time related functions.
 
 
