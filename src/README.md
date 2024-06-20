@@ -103,9 +103,9 @@ Additionally a *Makefile* is provided with frequently used commands:
 · phpcbf                         QA: <composer phpcbf>
 · phpstan                        QA: <composer phpstan>
 · tests                          QA: <composer tests>
+· tests-unit                     QA: <composer tests-unit>
 · coverage                       QA: <composer coverage>
 ```
-
 
 > [!NOTE]
 >
@@ -122,19 +122,13 @@ $ make composer-install
 ###### Default command
 
 ```bash
-$ make tests
+$ make tests [filter="checkInvokeMethod tests/Unit/Providers/FooTest.php"]
 ```
 
-###### Run only Unit  testsuite
+###### Run only Unit testsuite
 
 ```bash
-$ make tests testsuite=Unit
-```
-
-###### Filter a specific test
-
-```bash
-$ make tests filter="checkInvokeMethod tests/Unit/Providers/FooTest.php"
+$ make tests-unit [filter="checkInvokeMethod tests/Unit/Providers/FooTest.php"]
 ```
 
 #### Volumes

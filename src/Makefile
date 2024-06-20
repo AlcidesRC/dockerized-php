@@ -29,6 +29,7 @@ endif
 #---
 
 RANDOM_SEED := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
+PHPUNIT      = php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED)
 
 #---
 
@@ -82,7 +83,7 @@ composer-dump: ## Application: <composer dump-auto>
 
 .PHONY: composer-install
 composer-install: ## Application: <composer install>
-	@composer install $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize-autoloader --audit
+	@composer config --global discard-changes true && composer install $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize-autoloader --audit
 	$(call taskDone)
 
 .PHONY: composer-remove
@@ -111,29 +112,39 @@ composer-update: ## Application: <composer update>
 
 .PHONY: linter
 linter: ## QA: <composer linter>
-	@composer linter
+	@$(eval filter ?= 'app')
+	@composer linter $(filter)
 	$(call taskDone)
 
 .PHONY: phpcs
 phpcs: ## QA: <composer phpcbs>
-	@composer phpcs
+	@$(eval filter ?= 'app')
+	@composer phpcs $(filter)
 	$(call taskDone)
 
 .PHONY: phpcbf
 phpcbf: ## QA: <composer phpcbf>
-	@composer phpcbf
+	@$(eval filter ?= 'app')
+	@composer phpcbf $(filter)
 	$(call taskDone)
 
 .PHONY: phpstan
 phpstan: ## QA: <composer phpstan>
-	@composer phpstan
+	@$(eval filter ?= 'app')
+	@composer phpstan $(filter)
 	$(call taskDone)
 
 .PHONY: tests
 tests: ## QA: <composer tests>
 	@$(eval testsuite ?= 'Unit')
 	@$(eval filter ?= '.')
-	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=$(testsuite) --filter=$(filter)
+	@$(PHPUNIT) --testsuite=$(testsuite) --filter=$(filter)
+	$(call taskDone)
+
+.PHONY: tests-unit
+tests-unit: ## QA: <composer tests-unit>
+	@$(eval filter ?= '.')
+	@$(PHPUNIT) --testsuite=Unit --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: coverage

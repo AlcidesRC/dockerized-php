@@ -40,21 +40,26 @@
         "symfony/var-dumper": "^7.0"
     },
     "scripts": {
-        "linter": "parallel-lint --colors -e php -j 10 app/ tests/",
-        "phpcs": "phpcs -p --colors --standard=phpcs.xml app/ tests/",
-        "phpcbf": "phpcbf -p --colors --standard=phpcs.xml app/ tests/",
-        "phpstan": "phpstan analyse --ansi --configuration=phpstan.neon --memory-limit=1G --no-progress",
-        "phpunit": "php -d xdebug.mode=off phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+        "linter": "vendor/bin/parallel-lint --colors -e php -j 10",
+        "phpcs": "vendor/bin/phpcs -p --colors --standard=phpcs.xml",
+        "phpcbf": "vendor/bin/phpcbf -p --colors --standard=phpcs.xml",
+        "phpstan": "vendor/bin/phpstan analyse --ansi --memory-limit=1G --no-progress --configuration=phpstan.neon",
+        "phpunit": "php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
 
         "tests": [
-            "@linter",
+            "@linter app/ tests/",
             "@phpcs",
             "@phpunit --coverage-text"
+        ],
+        "tests-unit": [
+            "@linter app/ tests/",
+            "@phpcs",
+            "@phpunit --testsuite=Unit --coverage-text"
         ],
 
         "coverage": [
             "rm -Rf /coverage/*",
-            "@linter",
+            "@linter app/ tests/",
             "@phpcs",
             "@phpunit --coverage-text --coverage-html=/coverage"
         ]
