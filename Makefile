@@ -28,19 +28,21 @@ endif
 
 #---
 
-HOST_USER_ID    := $(shell id --user)
-HOST_USER_NAME  := $(shell id --user --name)
-HOST_GROUP_ID   := $(shell id --group)
-HOST_GROUP_NAME := $(shell id --group --name)
-
-#---
-
 SERVICE_APP   = app
 SERVICE_CADDY = caddy
 
 #---
 
 WEBSITE_URL = https://website.localhost
+
+#---
+
+HOST_USER_ID    := $(shell id --user)
+HOST_USER_NAME  := $(shell id --user --name)
+HOST_GROUP_ID   := $(shell id --group)
+HOST_GROUP_NAME := $(shell id --group --name)
+
+DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
 
 #---
 
@@ -116,7 +118,7 @@ help:
 
 .PHONY: build
 build: ## Docker: builds the service
-	@$(DOCKER_COMPOSE_COMMAND) build --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
+	@$(DOCKER_COMPOSE_COMMAND) build $(DOCKER_BUILD_ARGUMENTS)
 	$(call taskDone)
 
 .PHONY: up
