@@ -120,7 +120,7 @@ You can find this shell script at `build/healthcheck.sh`.
 
 > [!IMPORTANT]
 >
-> Remember to rebuild the Docker image if you make any change on here.
+> Remember to rebuild the Docker image if you make any change on this file.
 
 
 
@@ -149,7 +149,7 @@ To create this user in the container service, current host user details are coll
 
 > [!IMPORTANT]
 >
-> Remember to rebuild the Docker image if you make any change here.
+> Remember to rebuild the Docker image if you make any change on `Dockerfile` file.
 
 
 
@@ -193,7 +193,7 @@ There are some volumes created between the *host* and the container service:
 
 > [!IMPORTANT]
 >
-> Remember to restart the container service if you make any change here.
+> Remember to restart the container service if you make any change in `docker-compose.yml`.
 
 
 
@@ -251,8 +251,7 @@ Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional act
 
 > [!IMPORTANT]
 >
-> Remember to rebuild the Docker image if you make any change here.
-
+> Remember to restart the container service if you make any change in `build/Caddyfile` file.
 
 
 
@@ -270,7 +269,7 @@ You can generate/register the **Caddy Authority Certificate** in order to get `S
 
 > [!IMPORTANT]
 >
-> Remember to re install the certificate if you rebuild the container service.
+> Remember to reinstall the certificate if you rebuild the container service.
 
 
 
