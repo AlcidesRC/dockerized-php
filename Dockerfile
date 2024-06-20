@@ -105,7 +105,8 @@ RUN composer install \
     --prefer-dist \
     --no-dev
 
-# Ensure to copy __ONLY__ the PHP application folder(s) without the `./src/vendor` folder
+# Ensure to copy __ONLY__ the PHP application folder(s)
+# Ensure to omit the `./src/vendor` folder and avoid to install development dependencies into the optimized folder
 COPY src/app /app/app
 COPY src/public /app/public
 
