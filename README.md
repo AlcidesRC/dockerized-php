@@ -143,7 +143,7 @@ To create this user in the container service, current host user details are coll
 
 > [!NOTE]
 >
-> Review the `Makefile` and `Dockerfile` files and adjust the arguments to your preferences.
+> Review the `Makefile` and `Dockerfile` files and adjust the arguments to your convenience.
 
 
 
@@ -187,7 +187,7 @@ There are some volumes created between the *host* and the container service:
 
 > [!NOTE]
 >
-> Review the `docker-compose.yml` for further details. 
+> Review the `docker-compose.yml` and volumes to your convenience.
 
 
 
