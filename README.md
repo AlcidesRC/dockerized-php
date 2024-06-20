@@ -3,23 +3,30 @@
 # Dockerized PHP
 
 
-> A _dockerized_ environment based on PHP-FPM running on a Linux Alpine container. 
+> A _dockerized_ environment based on Caddy + PHP-FPM running on a Linux Alpine container. 
 
 
 [TOC]
 
+------
+
+
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.8-fpm-alpine** with -or without- Caddy support.
-
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.8-fpm-alpine** with Caddy support.
 
 ### Highlights
 
 - Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u> and/or <u>micro-services</u> based on **PHP8**.
 - Allows you to create an optimized **development environment** Docker image
 - Allows you to create an optimized **production-ready** Docker image
-- If you are building web applications, this repository brings **self-signed local domains** thanks to Caddy.
+-  **Self-signed local domains** thanks to Caddy.
+
+
+
+------
+
 
 
 ## Requirements
@@ -28,17 +35,29 @@ To use this repository you need:
 
 - [Docker](https://www.docker.com/) - An open source containerization platform.
 - [Git](https://git-scm.com/) - The free and open source distributed version control system.
+- [Make](https://www.gnu.org/software/make/) - A command to automate the build/manage process.
+
+
+
+------
+
 
 
 ## Built with
 
-| Type              | Component                                                                   | Description                                                              |
-| ----------------- |-----------------------------------------------------------------------------|--------------------------------------------------------------------------|
-| Infrastructure    | [Docker](https://www.docker.com/)                                           | Containerization platform                                                |
-| Service           | [Caddy Server](https://caddyserver.com/)                                    | Open source web server with automatic HTTPS written in Go                |
-| Service           | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php)                    | PHP with FastCGI Process Manager                                         |
-| Miscelaneous      | [Bash](https://www.gnu.org/software/bash/)                                  | Allows to create an interactive shell within main service                |
-| Miscelaneous      | [Make](https://www.gnu.org/software/make/)                                  | Allows to execute commands defined on a _Makefile_                       |
+| Type           | Component                                                | Description                                                  |
+| -------------- | -------------------------------------------------------- | ------------------------------------------------------------ |
+| Infrastructure | [Docker](https://www.docker.com/)                        | Containerization platform                                    |
+| Service        | [Caddy Server](https://caddyserver.com/)                 | Open source web server with automatic HTTPS written in Go    |
+| Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php) | PHP with FastCGI Process Manager                             |
+| Miscelaneous   | [Bash](https://www.gnu.org/software/bash/)               | Allows to create an interactive shell within containerized service |
+| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows to execute commands defined on a _Makefile_           |
+
+
+
+------
+
+
 
 ## Getting Started
 
@@ -53,31 +72,100 @@ $ git clone git@github.com:fonil/dockerized-php.git .
 
 #### Dockerfile
 
-`Dockerfile` is based on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/) in order to simplify the process to generate the **development container image** and the **production-ready container image**.
+`Dockerfile` is based on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/) in order to simplify the process to generate the **development container image** and the optimized **production-ready container image**.
 
-##### Healthcheck
+##### Default Stages
 
-A custom health check shell script is provided to check the container service via `HEALTHCHECK` directive. 
+| Name                        | Description                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `base-image`                | Used to define the base Docker image                         |
+| `common`                    | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc. |
+| `extensions-builder-common` | Used to build generic PHP extensions                         |
+| `extensions-builder-dev`    | Used to build **development** PHP extensions                 |
+| `build-development`         | Used to build the development environment                    |
+| `optimize-php-dependencies` | Used to optimize the PHP dependencies in production by removing the development ones |
+| `build-production`          | Used to build the **production** environment                 |
 
-This shell script returns a SIGINT if the PHP-FPM service can handle a valid request to FPM `ping` status endpoint.  
+###### Default Stages Hierarchy
+
+```mermaid
+---
+title: Dockerfile Stages Hierarchy
+---
+stateDiagram-v2
+    [*] --> BaseImage
+    BaseImage --> Common
+    Common --> ExtensionsBuilderCommon
+    
+    ExtensionsBuilderCommon --> ExtensionsBuilderDev
+    ExtensionsBuilderDev --> BuildDevelopment
+    
+    ExtensionsBuilderCommon --> OptimizePhpDependencies
+    OptimizePhpDependencies --> BuildProduction
+```
+
+##### Health check
+
+A custom health check script is provided to check the container service by performing a `PHP-FPM` `ping/pong` check. 
+
+You can find this shell script at `build/healthcheck.sh`.
+
+
 
 > [!NOTE]
 >
-> This health check directive is defined at `Dockerfile` instead of `docker-compose.yml`
+> Review the `Dockerfile` file and adjust the `HEALTHCHECK` directive options accordingly.
+
+
+
+> [!IMPORTANT]
+>
+> Remember to rebuild the Docker image if you make any change on here.
+
+
+
+##### Non-Privileged User
+
+Current container service uses a **non-privileged user** to execute `PHP-FPM`, with same User/Group ID than the host user.
+
+This mechanism allows to `PHP-FPM` create/update shared resources within the host with the same credentials than current host user, avoiding possible file-permissions issues.
+
+To create this user in the container service, current host user details are collected in the `Makefile` and passed to Docker `build` command as arguments:
+
+| Argument          | Default value   | Required value        | Description                |
+| ----------------- | --------------- | --------------------- | -------------------------- |
+| `HOST_USER_NAME`  | host-user-name  | `$ id --user --name`  | Current host user name     |
+| `HOST_GROUP_NAME` | host-group-name | `$ id --group --name` | Current host group name    |
+| `HOST_USER_ID`    | 1001            | `$ id --user`         | Current host user ID       |
+| `HOST_GROUP_ID`   | 1001            | `$ id --group`        | Current host user group ID |
+
+
+
+> [!NOTE]
+>
+> Review the `Makefile` and `Dockerfile` files and adjust the arguments to your preferences.
+
+
+
+> [!IMPORTANT]
+>
+> Remember to rebuild the Docker image if you make any change here.
+
 
 
 #### Logging
 
 The container service logs to `STDOUT` by default.
 
-#### Directory structure
+#### Project Structure
 
 ```text
 ├── build                           # Docker-related configuration files
 │   ├── Caddyfile                   # Caddy's configuration file
 │   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK  directive
-│   └── www.conf                    # PHP-FPM configuration file
-├── coverage                        # Code Coverage HTML dashboard
+│   ├── www.conf                    # PHP-FPM configuration file
+│   └── xdebug.ini                  # xDebug configuration file
+├── coverage                        # Code Coverage HTML report target folder
 ├── src                             # PHP application folder
 ├── caddy-root-ca-authority.crt     # Generated certificate file with Caddy Root CA Authority details
 ├── docker-compose.yml
@@ -86,19 +174,28 @@ The container service logs to `STDOUT` by default.
 └── README.md                       # This file
 ```
 
-#### Development Environment
-
 ##### Volumes
 
 There are some volumes created between the *host* and the container service:
 
-| Host path    | Container path | Description                         |
-| ------------ | -------------- | ----------------------------------- |
-| `./src`      | `/code`        | PHP Application folder              |
-| `./coverage` | `/coverage`    | Code Coverage HTML dashboard folder |
+| Host path    | Container path | Description                             |
+| ------------ | -------------- | --------------------------------------- |
+| `./src`      | `/code`        | PHP application folder                  |
+| `./coverage` | `/coverage`    | Code Coverage HTML report target folder |
 
 
-> Those volumes can be customized in the `docker-compose.yml` file
+
+> [!NOTE]
+>
+> Review the `docker-compose.yml` for further details. 
+
+
+
+> [!IMPORTANT]
+>
+> Remember to restart the container service if you make any change here.
+
+
 
 
 ##### Available Commands
@@ -124,86 +221,153 @@ A *Makefile* is provided with following commands:
 · show-context                   Setup: show context
 ```
 
-##### Building the Docker image
+#### Web Server
 
-To avoid any possible file permissions between the *host* and shared volumes with the container service, a non-root user is created into the container with same credentials than the *host* user. This internally created user is used to run the PHP-FPM service so any internally created file can be shared with the *host* without any file permission issue.
+This project uses Caddy as main web server which <u>provides HTTPS by default</u>.
 
-Those details are collected into the `Makefile` and passing each value to `Dockerfile` as a build argument:
 
-| Argument          | How to fill the value | Description                |
-| ----------------- | --------------------- | -------------------------- |
-| `HOST_USER_NAME`  | `$ id --user --name`  | Current host user name     |
-| `HOST_GROUP_NAME` | `$ id --group --name` | Current host group name    |
-| `HOST_USER_ID`    | `$ id --user`         | Current host user ID       |
-| `HOST_GROUP_ID`   | `$ id --group`        | Current host user group ID |
 
-###### Accessing the container service
+> [!WARNING]
+>
+> Caddy is optional and you can replace/remove it based on your preferences.
 
-```bash
-$ docker run -it --rm app:development bash
-```
 
-##### Web application
 
-If you are developing web applications (which requires a web server) this repository brings a clean integration with Caddy, which <u>uses HTTPS by default</u>.
+##### Default Domain
 
-###### Website domain
+The default website domain is `https://website.localhost`.
 
-The default website domain is `https://website.localhost`
+Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
+
+
+
+> [!NOTE]
+>
+> Review the `build/Caddyfile` and apply the changes based on your preferences.
+>
+> Review the `Makefile` to ensure `WEBSITE_URL` constant has the desired domain URL.
+
+
 
 > [!IMPORTANT]
 >
-> Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
+> Remember to rebuild the Docker image if you make any change here.
 
-> [!TIP]
+
+
+
+##### Certificate Authority (CA) & SSL Certificate
+
+You can generate/register the **Caddy Authority Certificate** in order to get `SSL` support .
+
+
+
+> [!NOTE]
 >
-> If you want to customize the default website domain please update the files `build/Caddyfile` and `Makefile` accordingly.
+> Just execute `make install-caddy-certificate` and follow the provided guidelines to generate the Caddy Authority Certificate and install it on your host.
 
 
-###### Certificate Authority (CA) & SSL Certificate
 
-If you experiment any SSL certificate issue on your *host*, please register the **Caddy Authority Certificate** on your browser. 
-
-> [!TIP]
+> [!IMPORTANT]
 >
-> A _Makefile_ command is provided called `make install-caddy-certificate` which guides you on this whole process.
->
-> This is a one-time action due the certificate does not change after rebuilding/restarting the service.
+> Remember to re install the certificate if you rebuild the container service.
 
 
-##### PHP Application
+
+
+#### PHP Application
 
 PHP application must be placed into `src` folder.
 
+
+
 > [!TIP]
 >
-> If you are starting a new application from scratch, please consider using [PHP Skeleton](https://github.com/fonil/php-skeleton)
+> Please consider using [PHP Skeleton](https://github.com/fonil/php-skeleton) as boilerplate when creating `PHP` applications from scratch.
+
 
 
 ##### Testing
 
 ###### Mocking Date/Time functions
 
-Testing with date and/or time variations sometimes can be a nightmare. To assist on this topic the **UOPZ** extension has been installed and enabled in the container.
+Testing with date and/or time variations sometimes can be a nightmare. To assist on this topic the **UOPZ** extension has been installed and enabled by default.
+
+
 
 > [!TIP]
 >
-> You should add [slope-it/clock-mock](https://github.com/slope-it/clock-mock) as a development dependency into your `src/composer.json`. This library provides a way for mocking the current timestamp used by PHP for `\DateTime(Immutable)` objects and date/time related functions.
+> You can use [slope-it/clock-mock](https://github.com/slope-it/clock-mock) as a development dependency when mocking date/time functions. 
 
 
-#### Production Environment
 
-##### Building the Docker image
+### Development Environment
+
+#### Build Docker Image
+
+##### Linux Based Hosts
+
+```bash
+$ make build
+```
+
+##### Windows Hosts
+
+```bash
+$ docker compose build
+```
+
+#### Access to Container
+
+##### Linux Based Hosts
+
+```bash
+$ make bash
+```
+
+##### Windows Hosts
+
+```bash
+$ docker run -it --rm app:development bash
+```
+
+### Production Environment
+
+#### Build Docker Image
+
+##### Linux Based Hosts
 
 ```bash
 $ docker buildx build --target=build-production --tag="app:production" .
 ```
 
-##### Accessing the container service
+##### Windows Hosts
+
+```bash
+$ docker buildx build --target=build-production --tag="app:production" .
+```
+
+#### Access to Container
+
+##### Linux Based Hosts
 
 ```bash
 $ docker run -it --rm app:production sh
 ```
+
+##### Windows Hosts
+
+```bash
+$ docker run -it --rm app:production sh
+```
+
+
+
+
+
+------
+
+
 
 
 ## Security Vulnerabilities
@@ -219,6 +383,12 @@ Only the latest major version receives security fixes.
 ### Reporting a Vulnerability
 
 If you discover a security vulnerability within this project, please [open an issue here](https://github.com/fonil/dockerized-php/issues). All security vulnerabilities will be promptly addressed.
+
+
+
+------
+
+
 
 ## License
 
