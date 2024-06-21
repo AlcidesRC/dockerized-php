@@ -31,7 +31,7 @@ FROM base-image AS extensions-builder-common
 
 # Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        opcache
+        apcu
 
 #----------------------------------------------------------
 # STAGE: EXTENSIONS-BUILDER-DEV
