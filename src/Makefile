@@ -29,12 +29,6 @@ endif
 #---
 
 RANDOM_SEED := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
-PHPUNIT      = php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED)
-
-#---
-
-COMPOSER_FLAGS_ANSI_PROFILE = --ansi --profile
-COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS = --optimize-autoloader --with-all-dependencies
 
 ###
 # HELP
@@ -78,32 +72,32 @@ endef
 
 .PHONY: composer-dump
 composer-dump: ## Application: <composer dump-auto>
-	@composer dump-auto $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize --strict-psr
+	$(DOCKER_RUN_AS_USER) composer dump-auto --ansi --no-plugins --profile --classmap-authoritative --apcu --strict-psr
 	$(call taskDone)
 
 .PHONY: composer-install
 composer-install: ## Application: <composer install>
-	@composer config --global discard-changes true && composer install $(COMPOSER_FLAGS_ANSI_PROFILE) --no-interaction --optimize-autoloader --audit
+	$(DOCKER_RUN_AS_USER) composer install --ansi --no-plugins --classmap-authoritative --audit --apcu-autoloader
 	$(call taskDone)
 
 .PHONY: composer-remove
-composer-remove: require-packages ## Application: <composer remove>
-	@composer remove $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --no-interaction --unused $(packages)
+composer-remove: require-package ## Application: <composer remove>
+	$(DOCKER_RUN_AS_USER) composer remove --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --unused
 	$(call taskDone)
 
 .PHONY: composer-require-dev
 composer-require-dev: ## Application: <composer require --dev>
-	@composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages --dev
+	$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages --dev
 	$(call taskDone)
 
 .PHONY: composer-require
 composer-require: ## Application: <composer require>
-	@composer require $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --interactive --sort-packages
+	$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages
 	$(call taskDone)
 
 .PHONY: composer-update
 composer-update: ## Application: <composer update>
-	@composer update $(COMPOSER_FLAGS_ANSI_PROFILE) $(COMPOSER_FLAGS_OPTIMIZE_WITH_ALL_DEPS) --no-interaction
+	$(DOCKER_RUN_AS_USER) composer update --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies
 	$(call taskDone)
 
 ###
@@ -138,13 +132,13 @@ phpstan: ## QA: <composer phpstan>
 tests: ## QA: <composer tests>
 	@$(eval testsuite ?= 'Unit')
 	@$(eval filter ?= '.')
-	@$(PHPUNIT) --testsuite=$(testsuite) --filter=$(filter)
+	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=$(testsuite) --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: tests-unit
 tests-unit: ## QA: <composer tests-unit>
 	@$(eval filter ?= '.')
-	@$(PHPUNIT) --testsuite=Unit --filter=$(filter)
+	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=Unit --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: coverage
