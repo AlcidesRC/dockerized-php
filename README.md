@@ -217,8 +217,11 @@ A *Makefile* is provided with following commands:
 · down                           Docker: stops the service
 · logs                           Docker: exposes the service logs
 · bash                           Docker: establish a bash session into main container
-· install-caddy-certificate      Setup: installs Caddy Local Authority certificate
+· get-caddy-certificate          Setup: gets the Caddy Local Authority certificate
 · show-context                   Setup: show context
+· install-clean                  Application: clean up the ./src folder
+· install-skeleton               Application: installs PHP Skeleton
+· install-laravel                Application: installs Laravel
 ```
 
 #### Web Server
@@ -282,7 +285,7 @@ PHP application must be placed into `src` folder.
 
 > [!TIP]
 >
-> Please consider using [PHP Skeleton](https://github.com/fonil/php-skeleton) as boilerplate when creating `PHP` applications from scratch.
+> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/fonil/php-skeleton) as boilerplate or [Laravel](https://github.com/laravel/laravel) when creating `PHP` applications from scratch.
 
 
 
