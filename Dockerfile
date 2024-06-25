@@ -68,6 +68,7 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 # Add OS dependencies related with development
 RUN apk update && apk add --no-cache \
         bash \
+        git \
         make \
         ncurses \
         util-linux

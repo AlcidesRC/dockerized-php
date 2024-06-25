@@ -63,7 +63,7 @@ require-%:
 		echo "" ; \
 		echo " ${RED}⨉${RESET} Parameter [ ${YELLOW}${*}${RESET} ] is required!" ; \
 		echo "" ; \
-		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make COMMAND${RESET} ${RED}${*}=${RESET}${YELLOW}xxxxxx${RESET} ]" ; \
+		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make <command>${RESET} ${RED}${*}=${RESET}${YELLOW}xxxxxx${RESET} ]" ; \
 		echo "" ; \
 		exit 1 ; \
 	fi;
@@ -123,7 +123,7 @@ up: ## Docker: starts the service
 
 .PHONY: restart
 restart: ## Docker: restarts the service
-	@$(DOCKER_COMPOSE_COMMAND) restart $(SERVICE_APP)
+	@$(DOCKER_COMPOSE_COMMAND) restart
 	$(call taskDone)
 
 .PHONY: down
@@ -144,9 +144,9 @@ bash: ## Docker: establish a bash session into main container
 # CADDY
 ###
 
-.PHONY: install-caddy-certificate
-install-caddy-certificate: ## Setup: installs Caddy Local Authority certificate
-	@echo "Installing [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
+.PHONY: get-caddy-certificate
+get-caddy-certificate: up ## Setup: gets the Caddy Local Authority certificate
+	@echo "How to install [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
 	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
 	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
 	$(call orderedList,2,"Install the Caddy Authority certificate into your browser")
@@ -179,4 +179,27 @@ show-context: ## Setup: show context
 	@echo ""
 	$(call showInfo,"SSL")
 	@echo "    · Please execute [ ${YELLOW}make install-caddy-certificate${RESET} ] to register ${CYAN}Caddy's Root Certificate${RESET} on your browser"
+	$(call taskDone)
+
+###
+# INSTALLERS
+###
+
+.PHONY: install-clean
+install-clean: require-confirm ## Application: clean up the ./src folder
+	$(call showInfo,"Cleaning up the Application folder")
+	@find ./src -type f -delete
+	@rm -Rf ./src/*
+	$(call taskDone)
+
+.PHONY: install-skeleton
+install-skeleton: ## Application: installs PHP Skeleton
+	$(call showInfo,"Installing PHP Skeleton")
+	$(DOCKER_RUN_AS_USER) composer create-project fonil/php-skeleton .
+	$(call taskDone)
+
+.PHONY: install-laravel
+install-laravel: ## Application: installs Laravel
+	$(call showInfo,"Installing Laravel")
+	$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
 	$(call taskDone)
