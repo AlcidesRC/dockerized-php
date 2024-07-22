@@ -203,3 +203,10 @@ install-laravel: ## Application: installs Laravel
 	$(call showInfo,"Installing Laravel")
 	$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
 	$(call taskDone)
+
+.PHONY: install-symfony
+install-symfony: ## Application: installs Symfony
+	$(call showInfo,"Installing Symfony")
+	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton:"7.1.*" .
+	$(call taskDone)
+
