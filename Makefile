@@ -144,8 +144,8 @@ bash: ## Docker: establish a bash session into main container
 # CADDY
 ###
 
-.PHONY: get-caddy-certificate
-get-caddy-certificate: up ## Setup: gets the Caddy Local Authority certificate
+.PHONY: extract-caddy-certificate
+extract-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certificate
 	@echo "How to install [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
 	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
 	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
@@ -182,12 +182,12 @@ show-context: ## Setup: show context
 	$(call taskDone)
 
 ###
-# INSTALLERS
+# APPLICATION
 ###
 
-.PHONY: install-clean
-install-clean: require-confirm ## Application: clean up the ./src folder
-	$(call showInfo,"Cleaning up the Application folder")
+.PHONY: uninstall
+uninstall: require-confirm ## Application: removes the PHP application
+	$(call showInfo,"Uninstalling PHP Application")
 	@find ./src -type f -delete
 	@rm -Rf ./src/*
 	$(call taskDone)
@@ -207,6 +207,5 @@ install-laravel: ## Application: installs Laravel
 .PHONY: install-symfony
 install-symfony: ## Application: installs Symfony
 	$(call showInfo,"Installing Symfony")
-	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton:"7.1.*" .
+	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
 	$(call taskDone)
-

@@ -14,7 +14,7 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.8-fpm-alpine** with Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.9-fpm-alpine** with Caddy support.
 
 ### Highlights
 
@@ -217,11 +217,12 @@ A *Makefile* is provided with following commands:
 · down                           Docker: stops the service
 · logs                           Docker: exposes the service logs
 · bash                           Docker: establish a bash session into main container
-· get-caddy-certificate          Setup: gets the Caddy Local Authority certificate
+· extract-caddy-certificate      Setup: extracts the Caddy Local Authority certificate
 · show-context                   Setup: show context
-· install-clean                  Application: clean up the ./src folder
+· uninstall                      Application: removes the PHP application
 · install-skeleton               Application: installs PHP Skeleton
 · install-laravel                Application: installs Laravel
+· install-symfony                Application: installs Symfony
 ```
 
 #### Web Server
