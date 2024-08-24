@@ -26,9 +26,6 @@ else
 	RESET   := ""
 endif
 
-#---
-
-RANDOM_SEED := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
 
 ###
 # HELP
@@ -132,13 +129,13 @@ phpstan: ## QA: <composer phpstan>
 tests: ## QA: <composer tests>
 	@$(eval testsuite ?= 'Unit')
 	@$(eval filter ?= '.')
-	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=$(testsuite) --filter=$(filter)
+	@composer tests --testsuite=$(testsuite) --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: tests-unit
 tests-unit: ## QA: <composer tests-unit>
 	@$(eval filter ?= '.')
-	@php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(RANDOM_SEED) --testsuite=Unit --filter=$(filter)
+	@composer tests-unit --filter=$(filter)
 	$(call taskDone)
 
 .PHONY: coverage

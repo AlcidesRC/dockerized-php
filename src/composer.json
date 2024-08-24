@@ -1,5 +1,5 @@
 {
-    "name": "fonil/php-skeleton",
+    "name": "alcidesrc/php-skeleton",
     "description": "Application skeleton for projects based on PHP",
     "type": "project",
     "keywords": ["bootstrap", "skeleton", "php", "TDD", "DDD", "clean code", "boilerplate", "best practices"],
@@ -44,7 +44,7 @@
         "phpcs": "vendor/bin/phpcs -p --colors --standard=phpcs.xml",
         "phpcbf": "vendor/bin/phpcbf -p --colors --standard=phpcs.xml",
         "phpstan": "vendor/bin/phpstan analyse --ansi --memory-limit=1G --no-progress --configuration=phpstan.neon",
-        "phpunit": "php -d xdebug.mode=off vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
+        "phpunit": "vendor/bin/phpunit --configuration=phpunit.xml --testdox --colors --order-by=random --random-order-seed=$(head -200 /dev/urandom | cksum | cut -f1 -d \" \")",
 
         "tests": [
             "@linter app/ tests/",
@@ -54,7 +54,7 @@
         "tests-unit": [
             "@linter app/ tests/",
             "@phpcs",
-            "@phpunit --testsuite=Unit --coverage-text"
+            "@phpunit --coverage-text --testsuite=Unit"
         ],
 
         "coverage": [
