@@ -21,7 +21,7 @@ RUN apk update && apk add --no-cache \
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
 HEALTHCHECK --interval=10s --timeout=1s --retries=3 CMD /healthcheck.sh
 
-WORKDIR /code
+WORKDIR /var/www/html
 
 #----------------------------------------------------------
 # STAGE: EXTENSIONS-BUILDER-COMMON
@@ -87,6 +87,9 @@ COPY build/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN touch /var/log/xdebug.log \
     && chmod 0777 /var/log/xdebug.log
 
+# Ensure working dir is writtable by current user
+RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html
+
 #----------------------------------------------------------
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
 #----------------------------------------------------------
@@ -129,7 +132,7 @@ COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/loc
 COPY --from=extensions-builder-common /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add the optimized for production application
-COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /code
+COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /var/www/html
 
 # Setup PHP-FPM
 COPY build/www.conf /usr/local/etc/php-fpm.d/www.conf
