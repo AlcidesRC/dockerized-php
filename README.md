@@ -1,4 +1,4 @@
-[![Continuous Integration](https://github.com/fonil/dockerized-php/actions/workflows/ci.yml/badge.svg)](https://github.com/fonil/dockerized-php/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/alcidesrc/dockerized-php/actions/workflows/ci.yml/badge.svg)](https://github.com/alcidesrc/dockerized-php/actions/workflows/ci.yml)
 
 # Dockerized PHP
 
@@ -65,7 +65,7 @@ Just clone the repository into your preferred path:
 
 ```bash
 $ mkdir -p ~/path/to/my-new-project && cd ~/path/to/my-new-project
-$ git clone git@github.com:fonil/dockerized-php.git .
+$ git clone git@github.com:alcidesrc/dockerized-php.git .
 ```
 
 ### Conventions
@@ -286,7 +286,7 @@ PHP application must be placed into `src` folder.
 
 > [!TIP]
 >
-> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/fonil/php-skeleton) as boilerplate or [Laravel](https://github.com/laravel/laravel) when creating `PHP` applications from scratch.
+> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/alcidesrc/php-skeleton) as boilerplate or [Laravel](https://github.com/laravel/laravel) when creating `PHP` applications from scratch.
 
 
 
@@ -385,7 +385,7 @@ Only the latest major version receives security fixes.
 
 ### Reporting a Vulnerability
 
-If you discover a security vulnerability within this project, please [open an issue here](https://github.com/fonil/dockerized-php/issues). All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability within this project, please [open an issue here](https://github.com/alcidesrc/dockerized-php/issues). All security vulnerabilities will be promptly addressed.
 
 
 
