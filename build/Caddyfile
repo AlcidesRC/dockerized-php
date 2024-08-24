@@ -1,9 +1,7 @@
-:80 {
-    respond /caddy-health-check 200
-}
-
 website.localhost {
     tls internal
+
+    respond /healthcheck 200
 
     root * /code/public
 

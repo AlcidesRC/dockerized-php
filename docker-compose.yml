@@ -32,7 +32,7 @@ services:
         depends_on:
             - app
         healthcheck:
-            test: ["CMD", "wget", "--spider", "http://localhost/caddy-health-check"]
+            test: ["CMD", "wget", "--spider", "https://website.localhost/healthcheck"]
             interval: 10s
             timeout: 1s
             retries: 3
