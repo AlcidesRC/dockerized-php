@@ -62,6 +62,9 @@ ENV ENV=DEVELOPMENT
 RUN addgroup --gid ${HOST_GROUP_ID} ${HOST_GROUP_NAME} \
     && adduser --shell /bin/bash --uid ${HOST_USER_ID} --ingroup ${HOST_GROUP_NAME} --ingroup www-data --disabled-password --gecos '' ${HOST_USER_NAME}
 
+# Ensure working dir is writtable by current user
+RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html
+
 # Add __ONLY__ compiled extensions & their config files
 COPY --from=extensions-builder-dev /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
 COPY --from=extensions-builder-dev /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
@@ -86,9 +89,6 @@ RUN sed -i -r "s/USER-NAME/${HOST_USER_NAME}/g" /usr/local/etc/php-fpm.d/www.con
 COPY build/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN touch /var/log/xdebug.log \
     && chmod 0777 /var/log/xdebug.log
-
-# Ensure working dir is writtable by current user
-RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html
 
 #----------------------------------------------------------
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
