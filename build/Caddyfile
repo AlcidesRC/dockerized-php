@@ -3,7 +3,7 @@ website.localhost {
 
     respond /healthcheck 200
 
-    root * /code/public
+    root * /var/www/html/public
 
     encode zstd gzip
 
