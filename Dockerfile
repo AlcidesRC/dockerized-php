@@ -63,7 +63,9 @@ RUN addgroup --gid ${HOST_GROUP_ID} ${HOST_GROUP_NAME} \
     && adduser --shell /bin/bash --uid ${HOST_USER_ID} --ingroup ${HOST_GROUP_NAME} --ingroup www-data --disabled-password --gecos '' ${HOST_USER_NAME}
 
 # Ensure working dir is writtable by current user
-RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html
+RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html \
+    && find /var/www/html -type f -delete \
+    && rm -Rf /var/www/html/*
 
 # Add __ONLY__ compiled extensions & their config files
 COPY --from=extensions-builder-dev /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
