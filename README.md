@@ -23,6 +23,13 @@ This repository contains a _dockerized_ environment for building PHP application
 - Allows you to create an optimized **production-ready** Docker image
 -  **Self-signed local domains** thanks to Caddy.
 
+### Infrastructure
+
+| Docker Infrastructure | Value | Size           |
+| --------------------- | ----- | -------------- |
+| Containers            | 2     | 109Mb + 49.2Mb |
+| Services              | 2     | N/A            |
+
 
 
 ------
