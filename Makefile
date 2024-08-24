@@ -195,17 +195,17 @@ uninstall: require-confirm ## Application: removes the PHP application
 .PHONY: install-skeleton
 install-skeleton: ## Application: installs PHP Skeleton
 	$(call showInfo,"Installing PHP Skeleton")
-	$(DOCKER_RUN_AS_USER) composer create-project fonil/php-skeleton .
+	$(DOCKER_RUN) composer create-project alcidesrc/php-skeleton .
 	$(call taskDone)
 
 .PHONY: install-laravel
 install-laravel: ## Application: installs Laravel
 	$(call showInfo,"Installing Laravel")
-	$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
+	$(DOCKER_RUN) composer create-project laravel/laravel .
 	$(call taskDone)
 
 .PHONY: install-symfony
 install-symfony: ## Application: installs Symfony
 	$(call showInfo,"Installing Symfony")
-	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
+	$(DOCKER_RUN) composer create-project symfony/skeleton .
 	$(call taskDone)
