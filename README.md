@@ -1,4 +1,4 @@
-[![Continuous Integration](https://github.com/alcidesrc/dockerized-php/actions/workflows/ci.yml/badge.svg)](https://github.com/alcidesrc/dockerized-php/actions/workflows/ci.yml)
+[![Continuous Integration](https://github.com/AlcidesRC/dockerized-php/actions/workflows/ci.yml/badge.svg)](https://github.com/AlcidesRC/dockerized-php/actions/workflows/ci.yml)
 
 # Dockerized PHP
 
