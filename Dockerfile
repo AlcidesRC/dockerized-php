@@ -94,7 +94,7 @@ RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
 #----------------------------------------------------------
 
-FROM composer as optimize-php-dependencies
+FROM composer AS optimize-php-dependencies
 
 # First copy Composer files
 COPY ./src/composer.json ./src/composer.lock /app/
