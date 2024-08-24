@@ -13,8 +13,7 @@ services:
         restart: unless-stopped
         tty: true
         volumes:
-            - ./src:/code
-            - ./coverage:/coverage
+            - ./src:/var/www/html
 
     caddy:
         container_name: caddy
@@ -24,7 +23,7 @@ services:
             - caddy_data:/data
             - caddy_config:/config
             - ./build/Caddyfile:/etc/caddy/Caddyfile:ro
-            - ./src:/code
+            - ./src:/var/www/html
         ports:
             - 80:80
             - 443:443
