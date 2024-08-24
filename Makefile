@@ -44,13 +44,13 @@ HOST_GROUP_NAME := $(shell id --group --name)
 
 #---
 
-DOCKER_COMPOSE_COMMAND = docker compose
+DOCKER_COMPOSE         = docker compose
 
-DOCKER_RUN             = $(DOCKER_COMPOSE_COMMAND) run --rm $(SERVICE_APP)
-DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE_COMMAND) run --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+DOCKER_RUN             = $(DOCKER_COMPOSE) run --rm $(SERVICE_APP)
+DOCKER_EXEC            = $(DOCKER_COMPOSE) exec $(SERVICE_APP)
 
-DOCKER_EXEC            = $(DOCKER_COMPOSE_COMMAND) exec $(SERVICE_APP)
-DOCKER_EXEC_AS_USER    = $(DOCKER_COMPOSE_COMMAND) exec --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE) run --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+DOCKER_EXEC_AS_USER    = $(DOCKER_COMPOSE) exec --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
 
 DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
 
@@ -108,32 +108,48 @@ help:
 	@echo ""
 
 ###
+# MISCELANEOUS
+###
+
+.PHONY: show-context
+show-context: ## Setup: show context
+	$(call showInfo,"Showing context")
+	@echo "    · Domain     : ${YELLOW}${WEBSITE_URL}${RESET}"
+	@echo "    · Host user  : (${YELLOW}${HOST_USER_ID}${RESET}) ${YELLOW}${HOST_USER_NAME}${RESET}"
+	@echo "    · Host group : (${YELLOW}${HOST_GROUP_ID}${RESET}) ${YELLOW}${HOST_GROUP_NAME}${RESET}"
+	@echo "    · Service(s) : ${YELLOW}${SERVICE_APP}${RESET}, ${YELLOW}${SERVICE_CADDY}${RESET}"
+	@echo ""
+	$(call showInfo,"SSL")
+	@echo "    · Please execute [ ${YELLOW}make install-caddy-certificate${RESET} ] to register ${CYAN}Caddy's Root Certificate${RESET} on your browser"
+	$(call taskDone)
+
+###
 # DOCKER RELATED
 ###
 
 .PHONY: build
 build: ## Docker: builds the service
-	@$(DOCKER_COMPOSE_COMMAND) build $(DOCKER_BUILD_ARGUMENTS)
+	@$(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
 	$(call taskDone)
 
 .PHONY: up
 up: ## Docker: starts the service
-	@$(DOCKER_COMPOSE_COMMAND) up --remove-orphans --detach
+	@$(DOCKER_COMPOSE) up --remove-orphans --detach
 	$(call taskDone)
 
 .PHONY: restart
 restart: ## Docker: restarts the service
-	@$(DOCKER_COMPOSE_COMMAND) restart
+	@$(DOCKER_COMPOSE) restart
 	$(call taskDone)
 
 .PHONY: down
 down: ## Docker: stops the service
-	@$(DOCKER_COMPOSE_COMMAND) down --remove-orphans
+	@$(DOCKER_COMPOSE) down --remove-orphans
 	$(call taskDone)
 
 .PHONY: logs
 logs: ## Docker: exposes the service logs
-	@$(DOCKER_COMPOSE_COMMAND) logs
+	@$(DOCKER_COMPOSE) logs
 	$(call taskDone)
 
 .PHONY: bash
@@ -166,22 +182,6 @@ extract-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certi
 	$(call taskDone)
 
 ###
-# MISCELANEOUS
-###
-
-.PHONY: show-context
-show-context: ## Setup: show context
-	$(call showInfo,"Showing context")
-	@echo "    · Domain     : ${YELLOW}${WEBSITE_URL}${RESET}"
-	@echo "    · Host user  : (${YELLOW}${HOST_USER_ID}${RESET}) ${YELLOW}${HOST_USER_NAME}${RESET}"
-	@echo "    · Host group : (${YELLOW}${HOST_GROUP_ID}${RESET}) ${YELLOW}${HOST_GROUP_NAME}${RESET}"
-	@echo "    · Service(s) : ${YELLOW}${SERVICE_APP}${RESET}, ${YELLOW}${SERVICE_CADDY}${RESET}"
-	@echo ""
-	$(call showInfo,"SSL")
-	@echo "    · Please execute [ ${YELLOW}make install-caddy-certificate${RESET} ] to register ${CYAN}Caddy's Root Certificate${RESET} on your browser"
-	$(call taskDone)
-
-###
 # APPLICATION
 ###
 
@@ -195,17 +195,17 @@ uninstall: require-confirm ## Application: removes the PHP application
 .PHONY: install-skeleton
 install-skeleton: ## Application: installs PHP Skeleton
 	$(call showInfo,"Installing PHP Skeleton")
-	$(DOCKER_RUN) composer create-project alcidesrc/php-skeleton .
+	$(DOCKER_RUN_AS_USER) composer create-project alcidesrc/php-skeleton .
 	$(call taskDone)
 
 .PHONY: install-laravel
 install-laravel: ## Application: installs Laravel
 	$(call showInfo,"Installing Laravel")
-	$(DOCKER_RUN) composer create-project laravel/laravel .
+	$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
 	$(call taskDone)
 
 .PHONY: install-symfony
 install-symfony: ## Application: installs Symfony
 	$(call showInfo,"Installing Symfony")
-	$(DOCKER_RUN) composer create-project symfony/skeleton .
+	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
 	$(call taskDone)
