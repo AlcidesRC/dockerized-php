@@ -27,7 +27,7 @@ This repository contains a _dockerized_ environment for building PHP application
 
 | Docker Infrastructure | Value | Size           |
 | --------------------- | ----- | -------------- |
-| Containers            | 2     | 109Mb + 49.2Mb |
+| Containers            | 2     | 107Mb + 49.2Mb |
 | Services              | 2     | N/A            |
 
 
@@ -83,15 +83,15 @@ $ git clone git@github.com:alcidesrc/dockerized-php.git .
 
 ##### Default Stages
 
-| Name                        | Description                                                  |
-| --------------------------- | ------------------------------------------------------------ |
-| `base-image`                | Used to define the base Docker image                         |
-| `common`                    | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc. |
-| `extensions-builder-common` | Used to build generic PHP extensions                         |
-| `extensions-builder-dev`    | Used to build **development** PHP extensions                 |
-| `build-development`         | Used to build the development environment                    |
+| Name                        | Description                                                                          |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| `base-image`                | Used to define the base Docker image                                                 |
+| `common`                    | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc.                      |
+| `extensions-builder-common` | Used to build generic PHP extensions                                                 |
+| `extensions-builder-dev`    | Used to build **development** PHP extensions                                         |
+| `build-development`         | Used to build the development environment                                            |
 | `optimize-php-dependencies` | Used to optimize the PHP dependencies in production by removing the development ones |
-| `build-production`          | Used to build the **production** environment                 |
+| `build-production`          | Used to build the **production** environment                                         |
 
 ###### Default Stages Hierarchy
 
@@ -168,14 +168,19 @@ The container service logs to `STDOUT` by default.
 
 ```text
 ├── build                           # Docker-related configuration files
-│   ├── Caddyfile                   # Caddy's configuration file
+│   ├── dev
+│   │   └── Caddyfile               # Caddy's configuration file for development environment
+│   ├── prod
+│   │   └── Caddyfile               # Caddy's configuration file for production environment
 │   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK  directive
 │   ├── www.conf                    # PHP-FPM configuration file
 │   └── xdebug.ini                  # xDebug configuration file
 ├── coverage                        # Code Coverage HTML report target folder
 ├── src                             # PHP application folder
 ├── caddy-root-ca-authority.crt     # Generated certificate file with Caddy Root CA Authority details
-├── docker-compose.yml
+├── docker-compose.yml              # Docker Compose base file
+├── docker-compose-dev.yml          # Override Docker Compose file for development environment
+├── docker-compose-prod.yml         # Override Docker Compose file for production environment
 ├── Dockerfile
 ├── Makefile
 └── README.md                       # This file
