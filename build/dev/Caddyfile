@@ -5,7 +5,7 @@ website.localhost {
 
     root * /var/www/html/public
 
-    encode zstd gzip
+	encode zstd gzip
 
     php_fastcgi app:9000
 

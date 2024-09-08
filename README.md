@@ -58,7 +58,7 @@ To use this repository you need:
 | Service        | [Caddy Server](https://caddyserver.com/)                 | Open source web server with automatic HTTPS written in Go    |
 | Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php) | PHP with FastCGI Process Manager                             |
 | Miscelaneous   | [Bash](https://www.gnu.org/software/bash/)               | Allows to create an interactive shell within containerized service |
-| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows to execute commands defined on a _Makefile_           |
+| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows tThe order on here is important!o execute commands defined on a _Makefile_ |
 
 
 
@@ -212,24 +212,26 @@ A *Makefile* is provided with following commands:
 ```bash
 ~/path/to/my-new-project$ make
 
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║                           .: AVAILABLE COMMANDS :.                           ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║ 	                                                                                                     ║
+║ 	                                 .: AVAILABLE COMMANDS :. 	                                         ║
+║ 	                                                                                                     ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+· USER ......... (1000) alcidesrc
+· GROUP ........ (1000) alcidesrc
+· SERVICE(s) ... app, caddy
 
-· build                          Docker: builds the service
-· up                             Docker: starts the service
-· restart                        Docker: restarts the service
-· down                           Docker: stops the service
-· logs                           Docker: exposes the service logs
-· bash                           Docker: establish a bash session into main container
-· extract-caddy-certificate      Setup: extracts the Caddy Local Authority certificate
-· show-context                   Setup: show context
-· uninstall                      Application: removes the PHP application
-· install-skeleton               Application: installs PHP Skeleton
-· install-laravel                Application: installs Laravel
-· install-symfony                Application: installs Symfony
+· build                               Docker: builds the service <env=[dev|prod]>
+· up                                  Docker: starts the service <env=[dev|prod]>
+· restart                             Docker: restarts the service <env=[dev|prod]>
+· down                                Docker: stops the service <env=[dev|prod]>
+· logs                                Docker: exposes the service logs <env=[dev|prod]>
+· shell                               Docker: establish a shell session into main container
+· install-caddy-certificate           Setup: extracts the Caddy Local Authority certificate
+· install-skeleton                    Application: installs PHP Skeleton
+· install-laravel                     Application: installs Laravel
+· install-symfony                     Application: installs Symfony
+· uninstall                           Application: removes the PHP application
 ```
 
 #### Web Server
@@ -311,7 +313,7 @@ Testing with date and/or time variations sometimes can be a nightmare. To assist
 
 
 
-### Development Environment
+### Max. simultaneous connectionsMax. simultaneous connectionsDevelopment Environment
 
 #### Build Docker Image
 
@@ -341,6 +343,51 @@ $ make bash
 $ docker run -it --rm app:development bash
 ```
 
+
+
+#### Setup PHPStorm
+
+##### Help > Change Memory Settings
+
+To allow PHPStorm index huge projects consider to increase the default assigned memory amount from 2048 MiB up to 8192 MiB. 
+
+![phpstorm-memory-settings](phpstorm-memory-settings.png)
+
+##### Settings > PHP > Debug
+
+Ensure the `Max. simultaneous connections` is set to 1 to avoid trace collisions when debugging.
+
+![phpstorm-debug](phpstorm-settings-php-debug.png)
+
+##### Settings > PHP > Servers
+
+Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
+
+![phpstorm-settings-php-servers](phpstorm-settings-php-servers.png)
+
+##### Settings > PHP
+
+![phpstorm-settings-php-settings](phpstorm-settings-php-settings.png)
+
+![phpstorm-settings-php-settings-cli-interpreter](phpstorm-settings-php-settings-cli-interpreter.png)
+
+
+
+> [!IMPORTANT]
+>
+> When selecting Docker Compose configuration files, ensure to include:
+>
+> 1. The `docker-compose.yml` file, which contains the default service(s) specification
+> 2. The `docker-compose-dev.yml` file, which contains some override values or customization from default specification.
+>
+> **The order on here is important!**
+
+
+
+![phpstorm-settings-php-settings-cli-interpreter-configuration-files](phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
+
+
+
 ### Production Environment
 
 #### Build Docker Image
@@ -348,7 +395,7 @@ $ docker run -it --rm app:development bash
 ##### Linux Based Hosts
 
 ```bash
-$ docker buildx build --target=build-production --tag="app:production" .
+$ make env=prod
 ```
 
 ##### Windows Hosts
@@ -362,7 +409,7 @@ $ docker buildx build --target=build-production --tag="app:production" .
 ##### Linux Based Hosts
 
 ```bash
-$ docker run -it --rm app:production sh
+$ make shell env=prod
 ```
 
 ##### Windows Hosts

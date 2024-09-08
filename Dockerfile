@@ -4,7 +4,7 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.3.10-fpm-alpine AS base-image
+FROM php:8.3.11-fpm-alpine AS base-image
 
 #----------------------------------------------------------
 # STAGE: COMMON
@@ -14,7 +14,8 @@ FROM base-image AS common
 
 # Add OS dependencies
 RUN apk update && apk add --no-cache \
-        fcgi
+        fcgi \
+        libzip
 
 # Add a custom HEALTHCHECK script
 # Ensure the `healthcheck.sh` can be executed inside the container
@@ -31,7 +32,8 @@ FROM base-image AS extensions-builder-common
 
 # Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        apcu
+        uuid \
+        zip
 
 #----------------------------------------------------------
 # STAGE: EXTENSIONS-BUILDER-DEV
@@ -51,10 +53,10 @@ RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases
 
 FROM common AS build-development
 
-ARG HOST_USER_ID=1001
-ARG HOST_USER_NAME=host-user-name
-ARG HOST_GROUP_ID=1001
-ARG HOST_GROUP_NAME=host-group-name
+ARG HOST_USER_ID=1000
+ARG HOST_USER_NAME=host-username
+ARG HOST_GROUP_ID=1000
+ARG HOST_GROUP_NAME=host-groupname
 
 ENV ENV=DEVELOPMENT
 
@@ -62,7 +64,7 @@ ENV ENV=DEVELOPMENT
 RUN addgroup --gid ${HOST_GROUP_ID} ${HOST_GROUP_NAME} \
     && adduser --shell /bin/bash --uid ${HOST_USER_ID} --ingroup ${HOST_GROUP_NAME} --ingroup www-data --disabled-password --gecos '' ${HOST_USER_NAME}
 
-# Ensure working dir is writtable by current user
+# Empty working dir and make it writtable by current user
 RUN chown -Rf ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/www/html \
     && find /var/www/html -type f -delete \
     && rm -Rf /var/www/html/*
@@ -76,7 +78,6 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Add OS dependencies related with development
 RUN apk update && apk add --no-cache \
-        bash \
         git \
         make \
         ncurses \
@@ -90,7 +91,7 @@ RUN sed -i -r "s/USER-NAME/${HOST_USER_NAME}/g" /usr/local/etc/php-fpm.d/www.con
 # Setup xDebug
 COPY build/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN touch /var/log/xdebug.log \
-    && chmod 0777 /var/log/xdebug.log
+    && chown ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/log/xdebug.log
 
 #----------------------------------------------------------
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES

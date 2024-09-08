@@ -1,0 +1,13 @@
+acme.com {
+    tls internal
+
+    respond /healthcheck 200
+
+    root * /var/www/html/public
+
+	encode zstd gzip
+
+    php_fastcgi app:9000
+
+    file_server
+}

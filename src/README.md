@@ -1,3 +1,5 @@
+[![Continuous Integration](https://github.com/AlcidesRC/php-skeleton/actions/workflows/ci.yml/badge.svg)](https://github.com/AlcidesRC/php-skeleton/actions/workflows/ci.yml)
+
 # PHP Skeleton
 
 
@@ -92,19 +94,18 @@ Additionally a *Makefile* is provided with frequently used commands:
 ║                                                                              ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
-· composer-dump                  Application: <composer dump-auto>
-· composer-install               Application: <composer install>
-· composer-remove                Application: <composer remove>
-· composer-require-dev           Application: <composer require --dev>
-· composer-require               Application: <composer require>
-· composer-update                Application: <composer update>
-· linter                         QA: <composer linter>
-· phpcs                          QA: <composer phpcbs>
-· phpcbf                         QA: <composer phpcbf>
-· phpstan                        QA: <composer phpstan>
-· tests                          QA: <composer tests>
-· tests-unit                     QA: <composer tests-unit>
-· coverage                       QA: <composer coverage>
+· composer-dump                  [COMPOSER] Executes <composer dump-auto> inside the container
+· composer-install               [COMPOSER] Executes <composer install> inside the container
+· composer-remove                [COMPOSER] Executes <composer remove> inside the container
+· composer-require-dev           [COMPOSER] Executes <composer require --dev> inside the container
+· composer-require               [COMPOSER] Executes <composer require> inside the container
+· composer-update                [COMPOSER] Executes <composer update> inside the container
+· check-syntax                   [QA] Executes <check-syntax [filter=app]> inside the container
+· check-style                    [QA] Executes <check-style [filter=app]> inside the container
+· fix-style                      [QA] Executes <fix-style [filter=app]> inside the container
+· phpstan                        [QA] Executes <phpstan [filter=app]> inside the container
+· tests                          [QA] Executes <phpunit --testsuite=[testsuite=Unit] --filter=[filter=.]> inside the container
+· coverage                       [QA] Executes <phpunit --coverage-html=[folder=./coverage]> inside the container
 ```
 
 ##### Installing Dependencies

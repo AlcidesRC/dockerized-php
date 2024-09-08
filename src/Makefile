@@ -26,6 +26,11 @@ else
 	RESET   := ""
 endif
 
+#---
+
+RANDOM_ORDER_SEED := $(shell head -200 /dev/urandom | cksum | cut -f1 -d " ")
+
+#---
 
 ###
 # HELP
@@ -68,32 +73,32 @@ endef
 ###
 
 .PHONY: composer-dump
-composer-dump: ## Application: <composer dump-auto>
+composer-dump: ## [COMPOSER] Executes <composer dump-auto> inside the container
 	$(DOCKER_RUN_AS_USER) composer dump-auto --ansi --no-plugins --profile --classmap-authoritative --apcu --strict-psr
 	$(call taskDone)
 
 .PHONY: composer-install
-composer-install: ## Application: <composer install>
+composer-install: ## [COMPOSER] Executes <composer install> inside the container
 	$(DOCKER_RUN_AS_USER) composer install --ansi --no-plugins --classmap-authoritative --audit --apcu-autoloader
 	$(call taskDone)
 
 .PHONY: composer-remove
-composer-remove: require-package ## Application: <composer remove>
+composer-remove: require-package ## [COMPOSER] Executes <composer remove> inside the container
 	$(DOCKER_RUN_AS_USER) composer remove --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --unused
 	$(call taskDone)
 
 .PHONY: composer-require-dev
-composer-require-dev: ## Application: <composer require --dev>
+composer-require-dev: ## [COMPOSER] Executes <composer require --dev> inside the container
 	$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages --dev
 	$(call taskDone)
 
 .PHONY: composer-require
-composer-require: ## Application: <composer require>
+composer-require: ## [COMPOSER] Executes <composer require> inside the container
 	$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages
 	$(call taskDone)
 
 .PHONY: composer-update
-composer-update: ## Application: <composer update>
+composer-update: ## [COMPOSER] Executes <composer update> inside the container
 	$(DOCKER_RUN_AS_USER) composer update --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies
 	$(call taskDone)
 
@@ -101,44 +106,39 @@ composer-update: ## Application: <composer update>
 # QA
 ###
 
-.PHONY: linter
-linter: ## QA: <composer linter>
+.PHONY: check-syntax
+check-syntax: ## [QA] Executes <check-syntax> inside the container <filter=[app|path]>
 	@$(eval filter ?= 'app')
-	@composer linter $(filter)
+	@vendor/bin/parallel-lint --colors -e php -j 10 $(filter)
 	$(call taskDone)
 
-.PHONY: phpcs
-phpcs: ## QA: <composer phpcbs>
+.PHONY: check-style
+check-style: ## [QA] Executes <check-style> inside the container <filter=[app|path]>
 	@$(eval filter ?= 'app')
-	@composer phpcs $(filter)
+	@vendor/bin/phpcs -p --colors --standard=phpcs.xml $(filter)
 	$(call taskDone)
 
-.PHONY: phpcbf
-phpcbf: ## QA: <composer phpcbf>
+.PHONY: fix-style
+fix-style: ## [QA] Executes <fix-style> inside the container <filter=[app|path]>
 	@$(eval filter ?= 'app')
-	@composer phpcbf $(filter)
+	@vendor/bin/phpcbf -p --colors --standard=phpcs.xml $(filter)
 	$(call taskDone)
 
 .PHONY: phpstan
-phpstan: ## QA: <composer phpstan>
+phpstan: ## [QA] Executes <phpstan> inside the container <filter=[app|path]>
 	@$(eval filter ?= 'app')
-	@composer phpstan $(filter)
+	@vendor/bin/phpstan analyse --ansi --memory-limit=1G --no-progress --configuration=phpstan.neon $(filter)
 	$(call taskDone)
 
 .PHONY: tests
-tests: ## QA: <composer tests>
+tests: ## [QA] Executes <phpunit> inside the container <testsuite=[Unit|...]> <filter=[.|method + filename]>
 	@$(eval testsuite ?= 'Unit')
 	@$(eval filter ?= '.')
-	@composer tests --testsuite=$(testsuite) --filter=$(filter)
-	$(call taskDone)
-
-.PHONY: tests-unit
-tests-unit: ## QA: <composer tests-unit>
-	@$(eval filter ?= '.')
-	@composer tests-unit --filter=$(filter)
+	@XDEBUG_MODE=off vendor/bin/phpunit --testsuite=$(testsuite) --filter=$(filter) --configuration=phpunit.xml --coverage-text --testdox --colors --order-by=random --random-order-seed=$(RANDOM_ORDER_SEED)
 	$(call taskDone)
 
 .PHONY: coverage
-coverage: ## QA: <composer coverage>
-	@composer coverage
+coverage: ## [QA] Executes <phpunit with pcov coverage support> inside the container
+	@rm -Rf /coverage/*
+	@XDEBUG_MODE=off vendor/bin/phpunit --coverage-html=/coverage --configuration=phpunit.xml --coverage-text --testdox --colors --order-by=random --random-order-seed=$(RANDOM_ORDER_SEED)
 	$(call taskDone)

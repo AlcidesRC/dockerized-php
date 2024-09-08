@@ -8,8 +8,6 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
-            target: build-development
-        image: app:development
         restart: unless-stopped
         tty: true
         volumes:
@@ -22,16 +20,14 @@ services:
         volumes:
             - caddy_data:/data
             - caddy_config:/config
-            - ./build/Caddyfile:/etc/caddy/Caddyfile:ro
             - ./src:/var/www/html
         ports:
             - 80:80
             - 443:443
             - 443:443/udp
-        depends_on:
-            - app
         healthcheck:
-            test: ["CMD", "wget", "--spider", "https://website.localhost/healthcheck"]
             interval: 10s
             timeout: 1s
             retries: 3
+        depends_on:
+            - app
