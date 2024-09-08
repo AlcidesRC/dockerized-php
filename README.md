@@ -14,7 +14,7 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.10-fpm-alpine** with Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.11-fpm-alpine** with Caddy support.
 
 ### Highlights
 
