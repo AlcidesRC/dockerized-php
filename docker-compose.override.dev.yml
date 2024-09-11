@@ -1,16 +1,6 @@
 services:
     caddy:
         environment:
-            - HOSTNAME=website.localhost
-            - PHP_FPM_GATEWAYS=app1:9000 app2:9000
+            - HOSTNAME=dev.website.localhost
         healthcheck:
-            test: ["CMD", "wget", "--spider", "https://website.localhost/healthcheck"]
-        depends_on:
-            - app1
-            - app2
-
-    app2:
-        extends:
-            file: docker-compose.yml
-            service: app1
-        container_name: app2
+            test: ["CMD", "wget", "--spider", "https://dev.website.localhost/healthcheck"]

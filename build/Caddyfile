@@ -1,7 +1,6 @@
-(generic) {
+(common) {
 	encode zstd gzip
     respond /healthcheck 200
-    root * /var/www/html/public
     file_server
 }
 
@@ -9,9 +8,26 @@
     tls internal
 }
 
+(cache-security) {
+    header {
+        Cache-Control "public, max-age=3600"
+    }
+}
+
 {$HOSTNAME} {
-    import generic
+    import common
+    import cache-security
     import ssl
 
-    php_fastcgi {$PHP_FPM_GATEWAYS}
+    root * /var/www/html/public
+
+    php_fastcgi {$PHP_FPM_GATEWAYS} {
+        index index.php
+
+        resolve_root_symlink
+
+        dial_timeout 60s
+        read_timeout 300s
+        write_timeout 300s
+    }
 }

@@ -28,12 +28,12 @@ endif
 
 #---
 
-SERVICE_APP   = app1
 SERVICE_CADDY = caddy
+SERVICE_APP   = app1
 
 #---
 
-WEBSITE_URL = https://website.localhost
+WEBSITE_URL = https://dev.website.localhost
 
 #---
 
@@ -105,9 +105,10 @@ help:
 	@echo "║ $(call pad,32) ${YELLOW}.:${RESET} AVAILABLE COMMANDS ${YELLOW}:.${BLACK} $(call pad,32) ║"
 	@echo "║ $(call pad,96) ║"
 	@echo "╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝"
+	@echo "${BLACK}·${RESET} ${MAGENTA}DOMAIN(s)${BLACK} .... ${CYAN}$(WEBSITE_URL)${BLACK}"
+	@echo "${BLACK}·${RESET} ${MAGENTA}SERVICE(s)${BLACK} ... ${CYAN}$(SERVICE_CADDY)${BLACK}, ${CYAN}$(SERVICE_APP)${BLACK}"
 	@echo "${BLACK}·${RESET} ${MAGENTA}USER${BLACK} ......... ${WHITE}(${CYAN}$(HOST_USER_ID)${WHITE})${BLACK} ${CYAN}$(HOST_USER_NAME)${BLACK}"
 	@echo "${BLACK}·${RESET} ${MAGENTA}GROUP${BLACK} ........ ${WHITE}(${CYAN}$(HOST_GROUP_ID)${WHITE})${BLACK} ${CYAN}$(HOST_GROUP_NAME)${BLACK}"
-	@echo "${BLACK}·${RESET} ${MAGENTA}SERVICE(s)${BLACK} ... ${CYAN}$(SERVICE_APP)${BLACK}, ${CYAN}$(SERVICE_CADDY)${BLACK}"
 	@echo "${RESET}"
 	@grep -E '^[a-zA-Z_0-9%-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "${BLACK}·${RESET} ${YELLOW}%-35s${RESET} %s\n", $$1, $$2}'
 	@echo ""

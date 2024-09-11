@@ -167,23 +167,20 @@ The container service logs to `STDOUT` by default.
 #### Project Structure
 
 ```text
-├── build                           # Docker-related configuration files
-│   ├── dev
-│   │   └── Caddyfile               # Caddy's configuration file for development environment
-│   ├── prod
-│   │   └── Caddyfile               # Caddy's configuration file for production environment
-│   ├── healthcheck.sh              # Shell script for Docker's HEALTHCHECK  directive
-│   ├── www.conf                    # PHP-FPM configuration file
-│   └── xdebug.ini                  # xDebug configuration file
-├── coverage                        # Code Coverage HTML report target folder
-├── src                             # PHP application folder
-├── caddy-root-ca-authority.crt     # Generated certificate file with Caddy Root CA Authority details
-├── docker-compose.yml              # Docker Compose base file
-├── docker-compose-dev.yml          # Override Docker Compose file for development environment
-├── docker-compose-prod.yml         # Override Docker Compose file for production environment
+├── build                           	# Docker-related configuration files
+│   ├── Caddyfile                   	# Caddy's configuration file
+│   ├── healthcheck.sh              	# Shell script for Docker's HEALTHCHECK  directive
+│   ├── www.conf                    	# PHP-FPM configuration file
+│   └── xdebug.ini                  	# xDebug configuration file
+├── coverage                        	# Code Coverage HTML report target folder
+├── src                             	# PHP application folder
+├── caddy-root-ca-authority.crt     	# Generated certificate file with Caddy Root CA Authority details
+├── docker-compose.yml              	# Docker Compose base file
+├── docker-compose.override.dev.yml     # Docker Compose file for development environment
+├── docker-compose.override.prod.yml	# Docker Compose file for production environment
 ├── Dockerfile
 ├── Makefile
-└── README.md                       # This file
+└── README.md
 ```
 
 ##### Volumes
@@ -199,13 +196,13 @@ There are some volumes created between the *host* and the container service:
 
 > [!NOTE]
 >
-> Review the `docker-compose.yml` and volumes to your convenience.
+> Review the `docker-compose.xxx` files and adjust the volumes to your convenience.
 
 
 
 > [!IMPORTANT]
 >
-> Remember to restart the container service if you make any change in `docker-compose.yml`.
+> Remember to rebuild the Docker image if you make any change on `Dockerfile` file.
 
 
 
@@ -222,9 +219,10 @@ A *Makefile* is provided with following commands:
 ║ 	                                 .: AVAILABLE COMMANDS :. 	                                         ║
 ║ 	                                                                                                     ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+· DOMAIN(s) .... https://dev.website.localhost
+· SERVICE(s) ... caddy, app1
 · USER ......... (1000) alcidesrc
 · GROUP ........ (1000) alcidesrc
-· SERVICE(s) ... app, caddy
 
 · build                               Docker: builds the service <env=[dev|prod]>
 · up                                  Docker: starts the service <env=[dev|prod]>
@@ -253,23 +251,32 @@ This project uses Caddy as main web server which <u>provides HTTPS by default</u
 
 ##### Default Domain
 
-The default website domain is `https://website.localhost`.
+The default website domains are:
 
-Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
+| Environment   | Domain Name                                                      |
+|---------------|------------------------------------------------------------------|
+| `development` | [https://dev.website.localhost](https://dev.website.localhost)   |
+| `production ` | [https://prod.website.localhost](https://prod.website.localhost) |
+
+
+
+> [!TIP]
+>
+> Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
 
 
 
 > [!NOTE]
 >
-> Review the `build/Caddyfile` and apply the changes based on your preferences.
+> You can customize the domain name in `docker-compose.override.xxx.yml` 
 >
-> Review the `Makefile` to ensure `WEBSITE_URL` constant has the desired domain URL.
+> Review as well the `Makefile` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
 
 
 
 > [!IMPORTANT]
 >
-> Remember to restart the container service if you make any change in `build/Caddyfile` file.
+> Remember to restart the container service(s) if you make any change on any Docker file.
 
 
 
