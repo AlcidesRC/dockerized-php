@@ -1,13 +1,17 @@
-acme.com {
+(common-server) {
     tls internal
-
-    respond /healthcheck 200
-
-    root * /var/www/html/public
 
 	encode zstd gzip
 
+    respond /healthcheck 200
+
     php_fastcgi app:9000
 
+    root * /var/www/html/public
+
     file_server
+}
+
+acme.com {
+    import common-server
 }
