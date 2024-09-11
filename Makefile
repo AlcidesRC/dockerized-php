@@ -44,7 +44,7 @@ HOST_GROUP_NAME := $(shell id --group --name)
 
 #---
 
-DOCKER_COMPOSE         = docker compose --file docker-compose.yml --file docker-compose-$(env).yml
+DOCKER_COMPOSE         = docker compose --file docker-compose.yml --file docker-compose.override.$(env).yml
 
 DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
 

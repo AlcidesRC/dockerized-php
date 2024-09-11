@@ -1,8 +1,5 @@
 services:
     app:
-        extends:
-            file: docker-compose.yml
-            service: app
         build:
             target: build-development
         image: app:development
@@ -10,9 +7,6 @@ services:
             - ./coverage:/coverage
 
     caddy:
-        extends:
-            file: docker-compose.yml
-            service: caddy
         volumes:
             - ./build/dev/Caddyfile:/etc/caddy/Caddyfile:ro
         healthcheck:
