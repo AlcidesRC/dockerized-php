@@ -1,17 +1,6 @@
 services:
-    app:
-        extends:
-            file: docker-compose.yml
-            service: app
-        build:
-            target: build-production
-        image: app:production
-
     caddy:
-        extends:
-            file: docker-compose.yml
-            service: caddy
-        volumes:
-            - ./build/prod/Caddyfile:/etc/caddy/Caddyfile:ro
+        environment:
+            - HOSTNAME=acme.com
         healthcheck:
             test: ["CMD", "wget", "--spider", "https://acme.com/healthcheck"]

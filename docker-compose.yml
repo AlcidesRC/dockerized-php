@@ -3,31 +3,38 @@ volumes:
     caddy_config:
 
 services:
-    app:
-        container_name: app
-        build:
-            context: .
-            dockerfile: Dockerfile
-        restart: unless-stopped
-        tty: true
-        volumes:
-            - ./src:/var/www/html
-
     caddy:
         container_name: caddy
         image: caddy:2.8.4-alpine
         restart: unless-stopped
+        environment:
+            - HOSTNAME=localhost
+            - PHP_FPM_GATEWAYS=app1:9000
         volumes:
             - caddy_data:/data
             - caddy_config:/config
             - ./src:/var/www/html
+            - ./build/Caddyfile:/etc/caddy/Caddyfile:ro
         ports:
             - 80:80
             - 443:443
             - 443:443/udp
         healthcheck:
+            test: ["CMD", "wget", "--spider", "https://localhost/healthcheck"]
             interval: 10s
             timeout: 1s
             retries: 3
         depends_on:
-            - app
+            - app1
+
+    app1:
+        container_name: app1
+        build:
+            context: .
+            dockerfile: Dockerfile
+            target: build-development
+        image: app:development
+        restart: unless-stopped
+        tty: true
+        volumes:
+            - ./src:/var/www/html

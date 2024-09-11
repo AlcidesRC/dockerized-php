@@ -28,7 +28,7 @@ endif
 
 #---
 
-SERVICE_APP   = app
+SERVICE_APP   = app1
 SERVICE_CADDY = caddy
 
 #---
@@ -143,7 +143,7 @@ down: ## Docker: stops the service <env=[dev|prod]>
 .PHONY: logs
 logs: ## Docker: exposes the service logs <env=[dev|prod]>
 	@$(eval env ?= 'dev')
-	@$(eval service ?= 'app')
+	@$(eval service ?= 'caddy')
 	@$(DOCKER_COMPOSE) logs $(service)
 	$(call taskDone)
 

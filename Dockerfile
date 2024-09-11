@@ -130,6 +130,9 @@ FROM common AS build-production
 
 ENV ENV=PRODUCTION
 
+# Setup the FPM servie name and port
+RUN sed -i -r "s/LISTEN/${LISTEN}/g" /healthcheck.sh
+
 # Add __ONLY__ compiled extensions & their config files 
 COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
 COPY --from=extensions-builder-common /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/

@@ -1,0 +1,17 @@
+(generic) {
+	encode zstd gzip
+    respond /healthcheck 200
+    root * /var/www/html/public
+    file_server
+}
+
+(ssl) {
+    tls internal
+}
+
+{$HOSTNAME} {
+    import generic
+    import ssl
+
+    php_fastcgi {$PHP_FPM_GATEWAYS}
+}
