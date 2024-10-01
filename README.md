@@ -14,7 +14,7 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.11-fpm-alpine** with Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.12-fpm-alpine** with Caddy support.
 
 ### Highlights
 
@@ -363,25 +363,25 @@ $ docker run -it --rm app:development bash
 
 To allow PHPStorm index huge projects consider to increase the default assigned memory amount from 2048 MiB up to 8192 MiB. 
 
-![phpstorm-memory-settings](phpstorm-memory-settings.png)
+![phpstorm-memory-settings](README/setup-phpstorm-memory/phpstorm-memory-settings.png)
 
 ##### Settings > PHP > Debug
 
 Ensure the `Max. simultaneous connections` is set to 1 to avoid trace collisions when debugging.
 
-![phpstorm-debug](phpstorm-settings-php-debug.png)
+![phpstorm-debug](README/setup-phpstorm-xdebug/phpstorm-settings-php-debug.png)
 
 ##### Settings > PHP > Servers
 
 Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
-![phpstorm-settings-php-servers](phpstorm-settings-php-servers.png)
+![phpstorm-settings-php-servers](README/setup-phpstorm-xdebug/phpstorm-settings-php-servers.png)
 
 ##### Settings > PHP
 
-![phpstorm-settings-php-settings](phpstorm-settings-php-settings.png)
+![phpstorm-settings-php-settings](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings.png)
 
-![phpstorm-settings-php-settings-cli-interpreter](phpstorm-settings-php-settings-cli-interpreter.png)
+![phpstorm-settings-php-settings-cli-interpreter](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter.png)
 
 
 
@@ -396,7 +396,7 @@ Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
 
 
-![phpstorm-settings-php-settings-cli-interpreter-configuration-files](phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
+![phpstorm-settings-php-settings-cli-interpreter-configuration-files](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
 
 
 

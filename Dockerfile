@@ -4,7 +4,7 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.3.11-fpm-alpine AS base-image
+FROM php:8.3.12-fpm-alpine AS base-image
 
 #----------------------------------------------------------
 # STAGE: COMMON
@@ -133,7 +133,7 @@ ENV ENV=PRODUCTION
 # Setup the FPM servie name and port
 RUN sed -i -r "s/LISTEN/${LISTEN}/g" /healthcheck.sh
 
-# Add __ONLY__ compiled extensions & their config files 
+# Add __ONLY__ compiled extensions & their config files
 COPY --from=extensions-builder-common /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20230831/
 COPY --from=extensions-builder-common /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
