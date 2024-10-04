@@ -28,16 +28,16 @@ jobs:
               run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer validate --working-dir=. --strict
 
             - name: Install PHP dependencies
-              run: docker run --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer install --working-dir=. --no-interaction --no-progress --ansi
+              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer install --working-dir=. --no-interaction --no-progress --ansi
 
             - name: Check Syntax
-              run: docker run --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer check-syntax
+              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer check-syntax
 
             - name: Check Style
-              run: docker run --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer check-style
+              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer check-style
 
             - name: Check PHPStan
-              run: docker run --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer phpstan
+              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer phpstan
 
             - name: Check PHPUnit
-              run: docker run --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer tests
+              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer tests
