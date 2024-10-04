@@ -23,13 +23,6 @@ This repository contains a _dockerized_ environment for building PHP application
 - Allows you to create an optimized **production-ready** Docker image
 -  **Self-signed local domains** thanks to Caddy.
 
-### Infrastructure
-
-| Docker Infrastructure | Value | Size           |
-| --------------------- | ----- | -------------- |
-| Containers            | 2     | 107Mb + 49.2Mb |
-| Services              | 2     | N/A            |
-
 
 
 ------
@@ -43,6 +36,7 @@ To use this repository you need:
 - [Docker](https://www.docker.com/) - An open source containerization platform.
 - [Git](https://git-scm.com/) - The free and open source distributed version control system.
 - [Make](https://www.gnu.org/software/make/) - A command to automate the build/manage process.
+- [jq](https://jqlang.github.io/jq/download/) - A lightweight and flexible command-line JSON processor.
 
 
 
@@ -58,7 +52,8 @@ To use this repository you need:
 | Service        | [Caddy Server](https://caddyserver.com/)                 | Open source web server with automatic HTTPS written in Go    |
 | Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php) | PHP with FastCGI Process Manager                             |
 | Miscelaneous   | [Bash](https://www.gnu.org/software/bash/)               | Allows to create an interactive shell within containerized service |
-| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows tThe order on here is important!o execute commands defined on a _Makefile_ |
+| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows to execute commands defined on a _Makefile_           |
+| Miscelaneous   | [jq](https://jqlang.github.io/jq/download/)              | Allows to beautify the Docker inspections in JSON format     |
 
 
 
@@ -219,17 +214,18 @@ A *Makefile* is provided with following commands:
 ║ 	                                 .: AVAILABLE COMMANDS :. 	                                         ║
 ║ 	                                                                                                     ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-· DOMAIN(s) .... https://dev.website.localhost
-· SERVICE(s) ... caddy, app1
-· USER ......... (1000) alcidesrc
-· GROUP ........ (1000) alcidesrc
+· DOMAIN(s) .... https://localhost
+· SERVICE(s) ... caddy app1
+· USER ......... (1000) alcidesramos
+· GROUP ........ (1000) alcidesramos
 
 · build                               Docker: builds the service <env=[dev|prod]>
 · up                                  Docker: starts the service <env=[dev|prod]>
 · restart                             Docker: restarts the service <env=[dev|prod]>
 · down                                Docker: stops the service <env=[dev|prod]>
-· logs                                Docker: exposes the service logs <env=[dev|prod]>
+· logs                                Docker: exposes the service logs <env=[dev|prod]> <service=[app1|caddy]>
 · shell                               Docker: establish a shell session into main container
+· inspect                             Docker: inspect the health for specific service <service=[app1|caddy]>
 · install-caddy-certificate           Setup: extracts the Caddy Local Authority certificate
 · install-skeleton                    Application: installs PHP Skeleton
 · install-laravel                     Application: installs Laravel
@@ -251,22 +247,11 @@ This project uses Caddy as main web server which <u>provides HTTPS by default</u
 
 ##### Default Domain
 
-The default website domains are:
-
-| Environment   | Domain Name                                                      |
-|---------------|------------------------------------------------------------------|
-| `development` | [https://dev.website.localhost](https://dev.website.localhost)   |
-| `production ` | [https://prod.website.localhost](https://prod.website.localhost) |
+The default website domain is https://localhost
 
 
 
 > [!TIP]
->
-> Any `.localhost` TLD resolves by default to `127.0.0.1` so no any additional action is required on your *host*.
-
-
-
-> [!NOTE]
 >
 > You can customize the domain name in `docker-compose.override.xxx.yml` 
 >
