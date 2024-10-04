@@ -40,4 +40,4 @@ jobs:
               run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer phpstan --ansi
 
             - name: Check PHPUnit
-              run: docker run --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer tests --ansi
+              run: docker run --tty --rm --interactive --mount type=bind,source="$(pwd)"/src,target=/var/www/html dockerized-php:dev composer tests --ansi
