@@ -23,3 +23,6 @@ jobs:
 
             - name: Build the Docker image
               run: docker build --file Dockerfile --target build-development .
+
+            - name: Validate composer.json and composer.lock
+              run: docker run --rm --interactive --tty --mount type=bind,source="$(pwd)"/src,target=/var/www/html composer validate --working-dir=. --strict
