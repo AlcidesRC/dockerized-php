@@ -1,6 +1,0 @@
-services:
-    caddy:
-        environment:
-            - HOSTNAME=dev.website.localhost
-        healthcheck:
-            test: ["CMD", "wget", "--spider", "https://dev.website.localhost/healthcheck"]

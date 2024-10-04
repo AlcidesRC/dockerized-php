@@ -20,12 +20,15 @@ services:
             - 443:443
             - 443:443/udp
         healthcheck:
-            test: ["CMD", "wget", "--spider", "https://localhost/healthcheck"]
-            interval: 10s
+            test: ["CMD", "wget", "--no-check-certificate", "--spider", "https://localhost/healthcheck"]
+            interval: 30s
             timeout: 1s
             retries: 3
+            start_period: 10s
+            #start_interval: 2s
         depends_on:
-            - app1
+            app1:
+                condition: service_healthy
 
     app1:
         container_name: app1
@@ -33,7 +36,7 @@ services:
             context: .
             dockerfile: Dockerfile
             target: build-development
-        image: app:development
+        image: dockerized-php:dev
         restart: unless-stopped
         tty: true
         volumes:
