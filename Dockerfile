@@ -20,7 +20,7 @@ RUN apk update && apk add --no-cache \
 # Add a custom HEALTHCHECK script
 # Ensure the `healthcheck.sh` can be executed inside the container
 COPY --chmod=777 build/healthcheck.sh /healthcheck.sh
-HEALTHCHECK --interval=10s --timeout=1s --retries=3 CMD /healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=1s --retries=3 --start-period=10s --start-interval=2s CMD /healthcheck.sh
 
 WORKDIR /var/www/html
 
@@ -32,7 +32,6 @@ FROM base-image AS extensions-builder-common
 
 # Add, compile and configure PHP extensions
 RUN curl -sSL https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions -o - | sh -s \
-        uuid \
         zip
 
 #----------------------------------------------------------
