@@ -167,13 +167,14 @@ The container service logs to `STDOUT` by default.
 │   ├── healthcheck.sh              	# Shell script for Docker's HEALTHCHECK  directive
 │   ├── www.conf                    	# PHP-FPM configuration file
 │   └── xdebug.ini                  	# xDebug configuration file
-├── coverage                        	# Code Coverage HTML report target folder
+├── README                        		# README.md required assets
 ├── src                             	# PHP application folder
 ├── caddy-root-ca-authority.crt     	# Generated certificate file with Caddy Root CA Authority details
-├── docker-compose.yml              	# Docker Compose base file
 ├── docker-compose.override.dev.yml     # Docker Compose file for development environment
 ├── docker-compose.override.prod.yml	# Docker Compose file for production environment
+├── docker-compose.yml              	# Docker Compose base file
 ├── Dockerfile
+├── LICENSE
 ├── Makefile
 └── README.md
 ```
@@ -182,16 +183,15 @@ The container service logs to `STDOUT` by default.
 
 There are some volumes created between the *host* and the container service:
 
-| Host path    | Container path | Description                             |
-| ------------ | -------------- | --------------------------------------- |
-| `./src`      | `/code`        | PHP application folder                  |
-| `./coverage` | `/coverage`    | Code Coverage HTML report target folder |
+| Host path | Container path  | Description            |
+| --------- | --------------- | ---------------------- |
+| `./src`   | `/var/www/html` | PHP application folder |
 
 
 
 > [!NOTE]
 >
-> Review the `docker-compose.xxx` files and adjust the volumes to your convenience.
+> Review the `docker-compose.xxx.yml` files and adjust the volumes to your convenience.
 
 
 
