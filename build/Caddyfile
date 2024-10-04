@@ -1,6 +1,5 @@
 (common) {
 	encode zstd gzip
-    respond /healthcheck 200
     file_server
 }
 
@@ -8,16 +7,11 @@
     tls internal
 }
 
-(cache-security) {
-    header {
-        Cache-Control "public, max-age=3600"
-    }
-}
-
 {$HOSTNAME} {
     import common
-    import cache-security
     import ssl
+
+    respond /healthcheck 200
 
     root * /var/www/html/public
 
@@ -26,8 +20,6 @@
 
         resolve_root_symlink
 
-        dial_timeout 60s
-        read_timeout 300s
-        write_timeout 300s
+        lb_policy round_robin
     }
 }
