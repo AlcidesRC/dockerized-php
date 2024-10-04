@@ -33,7 +33,7 @@ SERVICE_APP   = app1
 
 #---
 
-WEBSITE_URL = https://dev.website.localhost
+WEBSITE_URL = https://localhost
 
 #---
 
@@ -106,7 +106,7 @@ help:
 	@echo "║ $(call pad,96) ║"
 	@echo "╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝"
 	@echo "${BLACK}·${RESET} ${MAGENTA}DOMAIN(s)${BLACK} .... ${CYAN}$(WEBSITE_URL)${BLACK}"
-	@echo "${BLACK}·${RESET} ${MAGENTA}SERVICE(s)${BLACK} ... ${CYAN}$(SERVICE_CADDY)${BLACK}, ${CYAN}$(SERVICE_APP)${BLACK}"
+	@echo "${BLACK}·${RESET} ${MAGENTA}SERVICE(s)${BLACK} ... ${CYAN}$(shell docker ps --format "{{.Names}}")${BLACK}"
 	@echo "${BLACK}·${RESET} ${MAGENTA}USER${BLACK} ......... ${WHITE}(${CYAN}$(HOST_USER_ID)${WHITE})${BLACK} ${CYAN}$(HOST_USER_NAME)${BLACK}"
 	@echo "${BLACK}·${RESET} ${MAGENTA}GROUP${BLACK} ........ ${WHITE}(${CYAN}$(HOST_GROUP_ID)${WHITE})${BLACK} ${CYAN}$(HOST_GROUP_NAME)${BLACK}"
 	@echo "${RESET}"
@@ -120,38 +120,60 @@ help:
 .PHONY: build
 build: ## Docker: builds the service <env=[dev|prod]>
 	@$(eval env ?= 'dev')
+	$(call showInfo,"Building Docker image\(s\)...")
+	@echo ""
 	@$(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
 	$(call taskDone)
 
 .PHONY: up
 up: ## Docker: starts the service <env=[dev|prod]>
 	@$(eval env ?= 'dev')
+	$(call showInfo,"Starting service\(s\)...")
+	@echo ""
 	@$(DOCKER_COMPOSE) up --remove-orphans --detach
 	$(call taskDone)
 
 .PHONY: restart
 restart: ## Docker: restarts the service <env=[dev|prod]>
 	@$(eval env ?= 'dev')
+	$(call showInfo,"Restarting service\(s\)...")
+	@echo ""
 	@$(DOCKER_COMPOSE) restart
 	$(call taskDone)
 
 .PHONY: down
 down: ## Docker: stops the service <env=[dev|prod]>
 	@$(eval env ?= 'dev')
+	$(call showInfo,"Stopping service\(s\)...")
+	@echo ""
 	@$(DOCKER_COMPOSE) down $(DOCKER_COMPOSE_FILES) --remove-orphans
 	$(call taskDone)
 
 .PHONY: logs
-logs: ## Docker: exposes the service logs <env=[dev|prod]>
+logs: ## Docker: exposes the service logs <env=[dev|prod]> <service=[app1|caddy]>
 	@$(eval env ?= 'dev')
 	@$(eval service ?= 'caddy')
-	@$(DOCKER_COMPOSE) logs $(service)
+	$(call showInfo,"Exposing service\(s\) logs...")
+	@echo ""
+	@$(DOCKER_COMPOSE) logs -f $(service)
 	$(call taskDone)
 
 .PHONY: shell
 shell: ## Docker: establish a shell session into main container
 	@$(eval env ?= 'dev')
-	$(DOCKER_RUN_AS_USER) sh
+	$(call showInfo,"Establishing a shell terminal with main service...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) sh
+	$(call taskDone)
+
+.PHONY: inspect
+inspect: ## Docker: inspect the health for specific service <service=[app1|caddy]>
+	@$(eval service ?= 'caddy')
+	$(call showInfo,"Inspecting the health for a specific service...")
+	@echo ""
+	@docker inspect --format "{{json .State.Health}}" $(service) | jq
+	@echo ""
+	$(call taskDone)
 
 ###
 # CADDY
@@ -159,6 +181,8 @@ shell: ## Docker: establish a shell session into main container
 
 .PHONY: install-caddy-certificate
 install-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certificate
+	$(call showInfo,"Extracting Caddy Certificate Authority file...")
+	@echo ""
 	@echo "How to install [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
 	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
 	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
@@ -184,27 +208,42 @@ install-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certi
 
 .PHONY: install-skeleton
 install-skeleton: ## Application: installs PHP Skeleton
-	$(call showInfo,"Installing PHP Skeleton")
 	@$(eval env ?= 'dev')
-	$(DOCKER_RUN_AS_USER) composer create-project alcidesrc/php-skeleton .
+	$(call showInfo,"Installing PHP Skeleton...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer create-project alcidesrc/php-skeleton .
 	$(call taskDone)
 
 .PHONY: install-laravel
 install-laravel: ## Application: installs Laravel
-	$(call showInfo,"Installing Laravel")
 	@$(eval env ?= 'dev')
-	$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
+	$(call showInfo,"Installing Laravel...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
 	$(call taskDone)
 
 .PHONY: install-symfony
 install-symfony: ## Application: installs Symfony
-	$(call showInfo,"Installing Symfony")
 	@$(eval env ?= 'dev')
-	$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
+	$(call showInfo,"Installing Symfony...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
 	$(call taskDone)
 
 .PHONY: uninstall
 uninstall: require-confirm ## Application: removes the PHP application
-	$(call showInfo,"Uninstalling PHP Application")
+	$(call showInfo,"Uninstalling PHP application...")
 	@rm -Rf ./src && mkdir ./src
+	$(call taskDone)
+
+###
+# MISCELANEOUS
+###
+
+.PHONY: open-website
+open-website: ## Application: open the application website
+	$(call showInfo,"Opening web application...")
+	@echo ""
+	@xdg-open $(WEBSITE_URL)
+	@$(call showAlert,"Press Ctrl+C to resume your session")
 	$(call taskDone)
