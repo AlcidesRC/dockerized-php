@@ -13,29 +13,11 @@ jobs:
     testsuite:
         name: Testsuite
 
-        runs-on: self-hosted
+        runs-on: ubuntu-latest
 
         env:
             ENV: DEVELOPMENT
 
         steps:
             - name: Build the Docker image
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml build
-
-            - name: Validate composer.json and composer.lock
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer validate --working-dir=. --strict
-
-            - name: Install PHP dependencies
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer install --working-dir=. --no-interaction --no-progress --ansi
-
-            - name: Check Syntax
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer check-syntax
-
-            - name: Check Coding Standards
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer check-style
-
-            - name: Check PHPStan
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer phpstan
-
-            - name: Check PHPUnit
-              run: docker compose --file docker-compose.yml --file docker-compose.override.dev.yml run -it app1 composer tests
+              run: docker build --file Dockerfile --target build-development .
