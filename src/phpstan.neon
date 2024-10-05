@@ -3,3 +3,7 @@ parameters:
 	paths:
 		- app
 		- tests
+	ignoreErrors:
+		-
+			message: '#Return type of call to method#'
+			path: tests/Unit/Providers/FooTest.php

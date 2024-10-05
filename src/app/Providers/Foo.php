@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use DateTimeImmutable;
+
 final class Foo
 {
-    public static function dump(): string
+    public static function getDateTime(?string $format): string
     {
-        $date = date('d-M-Y H:i:s');
-        $line = 'Executed method [ ' . __FUNCTION__ . ' ] in [ ' . getenv('ENV') . ' ] mode' . PHP_EOL;
+        return (new DateTimeImmutable())->format($format ?? 'Y-m-d H:i:s');
+    }
 
-        return sprintf('[%s] %s: %s', $date, self::class, $line);
+    public function ping(): string
+    {
+        return 'pong';
     }
 }

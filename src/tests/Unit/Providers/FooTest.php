@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit\Providers;
+namespace UnitTests\Providers;
 
 use App\Providers\Foo;
+use DateTime;
+use DateTimeImmutable;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
@@ -16,7 +18,7 @@ final class FooTest extends TestCase
 {
     protected function setUp(): void
     {
-        ClockMock::freeze(new \DateTime('2023-01-01 00:00:00'));
+        ClockMock::freeze(new DateTime('2024-01-01 00:00:00'));
     }
 
     protected function tearDown(): void
@@ -25,21 +27,38 @@ final class FooTest extends TestCase
     }
 
     #[Test]
-    #[DataProvider('dataProviderForDump')]
-    public function checkInvokeMethod(string $expectedLog): void
+    #[DataProvider('dataProviderForGetDateTime')]
+    public function checkGetDateTime(string $format): void
     {
-        $this->assertEquals($expectedLog, Foo::dump());
+        $datetime = new DateTimeImmutable();
+
+        self::assertEquals($datetime->format($format), Foo::getDateTime($format));
     }
 
     /**
      * @return array<string, array<int, string>>
      */
-    public static function dataProviderForDump(): array
+    public static function dataProviderForGetDateTime(): array
     {
+        $datetime = new DateTimeImmutable();
+
         return [
-            '[DEFAULT CASE]' => [
-                '[01-Jan-2023 00:00:00] App\Providers\Foo: Executed method [ dump ] in [ DEVELOPMENT ] mode' . PHP_EOL,
-            ],
+            '[CURRENT DATE TIME]' => [$datetime->format('Y-m-d H:i:s')],
+            '[CURRENT DATE]' => [$datetime->format('Y-m-d')],
+            '[CURRENT TIME]' => [$datetime->format('H:i:s')],
         ];
+    }
+
+    #[Test]
+    public function checkMockFinalClass(): void
+    {
+        $instance = new Foo();
+
+        self::assertEquals('pong', $instance->ping());
+
+        $mock = $this->createMock(get_class($instance));
+        $mock->expects(self::once())->method('ping')->willReturn('knock knock');
+
+        self::assertEquals('knock knock', $mock->ping());
     }
 }
