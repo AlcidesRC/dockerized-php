@@ -3,7 +3,7 @@
 # Dockerized PHP
 
 
-> A _dockerized_ environment based on Caddy + PHP-FPM running on a Linux Alpine container. 
+> A _dockerized_ environment based on Caddy + PHP-FPM running on separated Linux Alpine containers. 
 
 
 [TOC]
@@ -19,10 +19,10 @@ This repository contains a _dockerized_ environment for building PHP application
 ### Highlights
 
 - Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u> and/or <u>micro-services</u> based on **PHP8**.
-- Allows you to create an optimized **development environment** Docker image
-- Allows you to create an optimized **production-ready** Docker image
--  **Self-signed local domains** thanks to Caddy.
-
+- Multi-stage Dockerfile to allows you to create an optimized **development** or **production-ready** Docker images
+- Uses **Caddy webserver**.
+- **Self-signed local domains** thanks to Caddy.
+- **Everything on separated Docker services**.
 
 
 ------
@@ -76,7 +76,7 @@ $ git clone git@github.com:alcidesrc/dockerized-php.git .
 
 `Dockerfile` is based on [multi-stage builds](https://docs.docker.com/build/building/multi-stage/) in order to simplify the process to generate the **development container image** and the optimized **production-ready container image**.
 
-##### Default Stages
+##### Defined Stages
 
 | Name                        | Description                                                                          |
 | --------------------------- | ------------------------------------------------------------------------------------ |
@@ -88,7 +88,7 @@ $ git clone git@github.com:alcidesrc/dockerized-php.git .
 | `optimize-php-dependencies` | Used to optimize the PHP dependencies in production by removing the development ones |
 | `build-production`          | Used to build the **production** environment                                         |
 
-###### Default Stages Hierarchy
+###### Defined Stages Hierarchy
 
 ```mermaid
 ---
@@ -108,7 +108,7 @@ stateDiagram-v2
 
 ##### Health check
 
-A custom health check script is provided to check the container service by performing a `PHP-FPM` `ping/pong` check. 
+A custom health check script is provided to check the container service by performing the default `PHP-FPM` `ping/pong` check. 
 
 You can find this shell script at `build/healthcheck.sh`.
 
@@ -181,7 +181,7 @@ The container service logs to `STDOUT` by default.
 
 ##### Volumes
 
-There are some volumes created between the *host* and the container service:
+There is a **bind volume** created between the *host* and the container service:
 
 | Host path | Container path  | Description            |
 | --------- | --------------- | ---------------------- |
@@ -231,6 +231,8 @@ A *Makefile* is provided with following commands:
 · install-laravel                     Application: installs Laravel
 · install-symfony                     Application: installs Symfony
 · uninstall                           Application: removes the PHP application
+· open-website                        Application: open the application website
+· init                                Application: initializes the application
 ```
 
 #### Web Server
@@ -310,37 +312,45 @@ Testing with date and/or time variations sometimes can be a nightmare. To assist
 
 
 
-### Max. simultaneous connectionsMax. simultaneous connectionsDevelopment Environment
+### Development Environment
 
-#### Build Docker Image
+#### Quickstart
 
-##### Linux Based Hosts
+```bash
+$ make init
+```
+
+##### TL;DR
+
+###### Building the container
 
 ```bash
 $ make build
 ```
 
-##### Windows Hosts
+###### Starting the container service
 
 ```bash
-$ docker compose build
+$ make up
 ```
 
-#### Access to Container
-
-##### Linux Based Hosts
+###### Extracting Caddy Local Authority - 20XX ECC Root 
 
 ```bash
-$ make bash
+$ make install-caddy-certificate
 ```
 
-##### Windows Hosts
+###### Accessing to web application
 
 ```bash
-$ docker run -it --rm app:development bash
+$ make open-website
 ```
 
+###### Stopping the container service
 
+```bash
+$ make down
+```
 
 #### Setup PHPStorm
 
@@ -375,7 +385,7 @@ Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 > When selecting Docker Compose configuration files, ensure to include:
 >
 > 1. The `docker-compose.yml` file, which contains the default service(s) specification
-> 2. The `docker-compose-dev.yml` file, which contains some override values or customization from default specification.
+> 2. The `docker-compose.override.dev.yml` file, which may contains some override values or customization from default specification.
 >
 > **The order on here is important!**
 
@@ -387,37 +397,45 @@ Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
 ### Production Environment
 
-#### Build Docker Image
-
-##### Linux Based Hosts
+#### Quickstart
 
 ```bash
-$ make env=prod
+$ make init env=prod
 ```
 
-##### Windows Hosts
+##### TL;DR
+
+###### Building the container
 
 ```bash
-$ docker buildx build --target=build-production --tag="app:production" .
+$ make build env=prod
 ```
 
-#### Access to Container
-
-##### Linux Based Hosts
+###### Starting the container service
 
 ```bash
-$ make shell env=prod
+$ make up env=prod
 ```
 
-##### Windows Hosts
+###### Extracting Caddy Local Authority - 20XX ECC Root 
 
 ```bash
-$ docker run -it --rm app:production sh
+$ make install-caddy-certificate env=prod
 ```
 
+###### Accessing to web application
 
+```bash
+$ make open-website env=prod
+```
 
+###### Stopping the container service
 
+```bash
+$ make down env=prod
+```
+
+#### 
 
 ------
 
