@@ -129,7 +129,7 @@ FROM common AS build-production
 
 ENV ENV=PRODUCTION
 
-# Setup the FPM servie name and port
+# Setup the FPM service name and port
 RUN sed -i -r "s/LISTEN/${LISTEN}/g" /healthcheck.sh
 
 # Add __ONLY__ compiled extensions & their config files
