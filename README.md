@@ -166,7 +166,7 @@ The container service logs to `STDOUT` by default.
 │   ├── healthcheck.sh              	# Shell script for Docker's HEALTHCHECK  directive
 │   ├── www.conf                    	# PHP-FPM configuration file
 │   └── xdebug.ini                  	# xDebug configuration file
-├── README                        		# README.md required assets
+├── README                              # README.md required assets
 ├── src                             	# PHP application folder
 ├── caddy-root-ca-authority.crt     	# Generated certificate file with Caddy Root CA Authority details
 ├── docker-compose.override.dev.yml     # Docker Compose file for development environment
