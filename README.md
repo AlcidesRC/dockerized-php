@@ -137,8 +137,8 @@ To create this user in the container service, current host user details are coll
 | ----------------- | --------------- | --------------------- | -------------------------- |
 | `HOST_USER_NAME`  | host-user-name  | `$ id --user --name`  | Current host user name     |
 | `HOST_GROUP_NAME` | host-group-name | `$ id --group --name` | Current host group name    |
-| `HOST_USER_ID`    | 1001            | `$ id --user`         | Current host user ID       |
-| `HOST_GROUP_ID`   | 1001            | `$ id --group`        | Current host user group ID |
+| `HOST_USER_ID`    | 1000            | `$ id --user`         | Current host user ID       |
+| `HOST_GROUP_ID`   | 1000            | `$ id --group`        | Current host user group ID |
 
 
 
