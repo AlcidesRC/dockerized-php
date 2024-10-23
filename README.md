@@ -209,9 +209,9 @@ A *Makefile* is provided with following commands:
 ~/path/to/my-new-project$ make
 
 ╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║ 	                                                                                                     ║
-║ 	                                 .: AVAILABLE COMMANDS :. 	                                         ║
-║ 	                                                                                                     ║
+║                                                                                                        ║
+║                                    .: AVAILABLE COMMANDS :.                                            ║
+║                                                                                                        ║
 ╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
 · DOMAIN(s) .... https://localhost
 · SERVICE(s) ... caddy app1
