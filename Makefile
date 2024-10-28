@@ -146,7 +146,7 @@ down: ## Docker: stops the service <env=[dev|prod]>
 	@$(eval env ?= 'dev')
 	$(call showInfo,"Stopping service\(s\)...")
 	@echo ""
-	@$(DOCKER_COMPOSE) down $(DOCKER_COMPOSE_FILES) --remove-orphans
+	@$(DOCKER_COMPOSE) down --remove-orphans
 	$(call taskDone)
 
 .PHONY: logs
