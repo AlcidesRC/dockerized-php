@@ -1,6 +1,8 @@
 services:
     caddy:
         environment:
+            - TLS=internal
+            - HOSTNAME=localhost
             - PHP_FPM_GATEWAYS=app1:9000 app2:9000
         depends_on:
             app1:

@@ -249,6 +249,4 @@ open-website: ## Application: open the application website
 	$(call taskDone)
 
 .PHONY: init
-init: build install-caddy-certificate ## Application: initializes the application
-	$(call showInfo,"When ready just execute [ make open-website ] to visit the website with your preferred browser")
-	$(call taskDone)
+init: build install-caddy-certificate open-website ## Application: initializes the application

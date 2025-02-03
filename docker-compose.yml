@@ -8,6 +8,7 @@ services:
         image: caddy:2.8.4-alpine
         restart: unless-stopped
         environment:
+            - TLS=internal
             - HOSTNAME=localhost
             - PHP_FPM_GATEWAYS=app1:9000
         volumes:
