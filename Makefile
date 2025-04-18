@@ -44,12 +44,12 @@ HOST_GROUP_NAME := $(shell id --group --name)
 
 #---
 
-DOCKER_COMPOSE         = docker compose --file docker-compose.yml --file docker-compose.override.$(env).yml
+DOCKER_COMPOSE         = docker compose --file docker/docker-compose.yml --file docker/docker-compose.override.$(env).yml
 
 DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
 
-DOCKER_RUN             = $(DOCKER_COMPOSE) run --rm $(SERVICE_APP)
-DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE) run --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
+DOCKER_RUN_AS_ROOT     = $(DOCKER_COMPOSE) run -it --rm $(SERVICE_APP)
+DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE) run -it --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
 
 ###
 # FUNCTIONS
@@ -60,7 +60,7 @@ require-%:
 		echo "" ; \
 		echo " ${RED}⨉${RESET} Parameter [ ${YELLOW}${*}${RESET} ] is required!" ; \
 		echo "" ; \
-		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make <command>${RESET} ${RED}${*}=${RESET}${YELLOW}xxxxxx${RESET} ]" ; \
+		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make <command>${RESET} ${RED}${*}=${RESET}${YELLOW}xxxx${RESET} ]" ; \
 		echo "" ; \
 		exit 1 ; \
 	fi;
@@ -73,12 +73,12 @@ endef
 
 # $(1)=TEXT $(2)=EXTRA
 define showInfo
-	@echo " ${YELLOW}ℹ${RESET}  $(1) $(2)"
+	@echo " ${YELLOW}ℹ${RESET}  $(1) $(2)" | sed "s/\((.*)\)/\1/g"
 endef
 
 # $(1)=TEXT $(2)=EXTRA
 define showAlert
-	@echo " ${RED}!${RESET}  $(1) $(2)"
+	@echo " ${RED}!${RESET}  $(1) $(2)" | sed "s/\((.*)\)/\1/g"
 endef
 
 # $(1)=NUMBER $(2)=TEXT
@@ -118,15 +118,15 @@ help:
 ###
 
 .PHONY: build
-build: ## Docker: builds the service <env=[dev|prod]>
+build: ## Docker: builds service(s) image(s) <env=[dev|prod]>
 	@$(eval env ?= 'dev')
 	$(call showInfo,"Building Docker image\(s\)...")
 	@echo ""
-	@$(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
+	@COMPOSE_BAKE=true $(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
 	$(call taskDone)
 
 .PHONY: up
-up: ## Docker: starts the service <env=[dev|prod]>
+up: ## Docker: starts service(s) <env=[dev|prod]>
 	@$(eval env ?= 'dev')
 	$(call showInfo,"Starting service\(s\)...")
 	@echo ""
@@ -134,7 +134,7 @@ up: ## Docker: starts the service <env=[dev|prod]>
 	$(call taskDone)
 
 .PHONY: restart
-restart: ## Docker: restarts the service <env=[dev|prod]>
+restart: ## Docker: restarts service(s) <env=[dev|prod]>
 	@$(eval env ?= 'dev')
 	$(call showInfo,"Restarting service\(s\)...")
 	@echo ""
@@ -142,7 +142,7 @@ restart: ## Docker: restarts the service <env=[dev|prod]>
 	$(call taskDone)
 
 .PHONY: down
-down: ## Docker: stops the service <env=[dev|prod]>
+down: ## Docker: stops service(s) <env=[dev|prod]>
 	@$(eval env ?= 'dev')
 	$(call showInfo,"Stopping service\(s\)...")
 	@echo ""
@@ -150,29 +150,133 @@ down: ## Docker: stops the service <env=[dev|prod]>
 	$(call taskDone)
 
 .PHONY: logs
-logs: ## Docker: exposes the service logs <env=[dev|prod]> <service=[app1|caddy]>
+logs: ## Docker: exposes main service logs <env=[dev|prod]> <service=[app1|caddy]>
 	@$(eval env ?= 'dev')
 	@$(eval service ?= $(SERVICE_APP))
-	$(call showInfo,"Exposing service\(s\) logs for [ $(service) ] service...")
+	$(call showInfo,"Exposing [ $(service) ] service logs...")
 	@echo ""
 	@$(DOCKER_COMPOSE) logs -f $(service)
 	$(call taskDone)
 
 .PHONY: shell
-shell: ## Docker: establish a shell session into main container
+shell: ## Docker: establish a shell terminal with main service
 	@$(eval env ?= 'dev')
-	$(call showInfo,"Establishing a shell terminal with main service...")
+	$(call showInfo,"Establishing a shell terminal with [ $(SERVICE_APP) ] service...")
 	@echo ""
 	@$(DOCKER_RUN_AS_USER) sh
 	$(call taskDone)
 
 .PHONY: inspect
-inspect: ## Docker: inspect the health for specific service <service=[app1|caddy]>
+inspect: ## Docker: inspect the service health <service=[app1|caddy]>
 	@$(eval service ?= $(SERVICE_APP))
-	$(call showInfo,"Inspecting the health for [ $(service) ] service...")
+	$(call showInfo,"Inspecting the [ $(service) ] service health...")
 	@echo ""
 	@docker inspect --format "{{json .State.Health}}" $(service) | jq
 	@echo ""
+	$(call taskDone)
+
+###
+# COMPOSER
+###
+
+.PHONY: composer-dump
+composer-dump: ## Composer: executes <composer dump-auto> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Dumping dependencies...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer dump-auto --ansi --no-plugins --profile --classmap-authoritative --apcu --strict-psr
+	$(call taskDone)
+
+.PHONY: composer-install
+composer-install: ## Composer: executes <composer install> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Installing a dependency...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer install --ansi --no-plugins --classmap-authoritative --audit --apcu-autoloader
+	$(call taskDone)
+
+.PHONY: composer-remove
+composer-remove: require-package ## Composer: executes <composer remove> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Removing a dependency...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer remove --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --unused
+	$(call taskDone)
+
+.PHONY: composer-require-dev
+composer-require-dev: ## Composer: executes <composer require --dev> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Requiring a development dependency...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages --dev
+	$(call taskDone)
+
+.PHONY: composer-require
+composer-require: ## Composer: executes <composer require> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Requiring a dependency...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages
+	$(call taskDone)
+
+.PHONY: composer-update
+composer-update: ## Composer: executes <composer update> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Updating dependencies...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer update --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies
+	$(call taskDone)
+
+###
+# QA
+###
+
+.PHONY: check-syntax
+check-syntax: ## QA: Executes <composer check-syntax> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Check code syntax...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer check-syntax
+	$(call taskDone)
+
+.PHONY: check-style
+check-style: ## QA: Executes <composer check-style> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Checking code style...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer check-style
+	$(call taskDone)
+
+.PHONY: fix-style
+fix-style: ## QA: executes <composer fix-style> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Fixing code style...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer fix-style
+	$(call taskDone)
+
+.PHONY: phpstan
+phpstan: ## QA: executes <composer phpstan> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Executing PHPStan...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer phpstan
+	$(call taskDone)
+
+.PHONY: test
+test: ## QA: executes <composer paratest>
+	@$(eval env ?= 'dev')
+	$(call showInfo,"Executing PHPUnit...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer paratest
+	$(call taskDone)
+
+.PHONY: coverage
+coverage: ## QA: executes <composer paracoverage> inside the container
+	@$(eval env ?= 'dev')
+	$(call showInfo,"QA: Generating the Code Coverage report...")
+	@echo ""
+	@$(DOCKER_RUN_AS_USER) composer paracoverage
 	$(call taskDone)
 
 ###
@@ -181,7 +285,7 @@ inspect: ## Docker: inspect the health for specific service <service=[app1|caddy
 
 .PHONY: install-caddy-certificate
 install-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certificate
-	$(call showInfo,"Extracting Caddy Certificate Authority file...")
+	$(call showInfo,Extracting Caddy Certificate Authority file...)
 	@echo ""
 	@echo "How to install [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
 	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
@@ -241,8 +345,8 @@ uninstall: require-confirm ## Application: removes the PHP application
 ###
 
 .PHONY: open-website
-open-website: ## Application: open the application website
-	$(call showInfo,"Opening web application...")
+open-website: ## Application: opens the application URL
+	$(call showInfo,"Opening the application URL...")
 	@echo ""
 	@xdg-open $(WEBSITE_URL)
 	@$(call showAlert,"Press Ctrl+C to resume your session")

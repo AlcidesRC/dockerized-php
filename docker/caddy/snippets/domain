@@ -1,25 +1,4 @@
-{
-    admin off
-}
-
-(common) {
-    encode zstd gzip
-
-    file_server
-
-    respond /healthcheck "UP" 200
-}
-
-(ssl) {
-    tls {$TLS} {
-        on_demand
-    }
-}
-
-(custom_domain) {
-    import common
-    import ssl
-
+(domain) {
     ###
     # Domain related
     ###
@@ -90,21 +69,11 @@
     # PHP-FPM
     ###
 
-    php_fastcgi {$PHP_FPM_GATEWAYS} {
+    php_fastcgi {$CADDY_PHPFPM_GATEWAYS} {
         index index.php
 
         resolve_root_symlink
 
         lb_policy round_robin
     }
-}
-
-:80 {
-    import common
-    import ssl
-}
-
-{$HOSTNAME}, www.{$HOSTNAME} {
-    import custom_domain
-    root * /var/www/html/public
 }

@@ -1,0 +1,7 @@
+(common) {
+    encode zstd gzip
+
+    file_server
+
+    respond /healthcheck "UP" 200
+}

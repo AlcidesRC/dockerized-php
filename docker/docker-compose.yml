@@ -5,17 +5,14 @@ volumes:
 services:
     caddy:
         container_name: caddy
-        image: caddy:2.8.4-alpine
+        image: caddy:2.9.1-alpine
         restart: unless-stopped
-        environment:
-            - TLS=internal
-            - HOSTNAME=localhost
-            - PHP_FPM_GATEWAYS=app1:9000
         volumes:
             - caddy_data:/data
             - caddy_config:/config
-            - ./src:/var/www/html
-            - ./build/Caddyfile:/etc/caddy/Caddyfile:ro
+            - ./caddy/snippets:/etc/caddy/snippets:ro
+            - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+            - ../src:/var/www/html
         ports:
             - 80:80
             - 443:443
@@ -27,18 +24,8 @@ services:
             retries: 3
             start_period: 10s
             #start_interval: 2s
-        depends_on:
-            app1:
-                condition: service_healthy
 
     app1:
         container_name: app1
-        build:
-            context: .
-            dockerfile: Dockerfile
-            target: build-development
-        image: dockerized-php:dev
         restart: unless-stopped
         tty: true
-        volumes:
-            - ./src:/var/www/html

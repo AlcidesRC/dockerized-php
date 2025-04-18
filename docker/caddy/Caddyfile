@@ -1,0 +1,13 @@
+{
+    admin off
+}
+
+import snippets/*
+
+{$CADDY_HOSTNAME} {
+    import common
+    import ssl
+    import domain
+
+    root * /var/www/html/public
+}

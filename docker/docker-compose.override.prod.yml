@@ -1,0 +1,22 @@
+services:
+    caddy:
+        extends:
+            file: docker-compose.yml
+            service: caddy
+        environment:
+            - CADDY_TLS=internal
+            - CADDY_HOSTNAME=localhost
+            - CADDY_PHPFPM_GATEWAYS=app1:9000
+        depends_on:
+            app1:
+                condition: service_healthy
+
+    app1:
+        extends:
+            file: docker-compose.yml
+            service: app1
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
+            target: build-production
+        image: dockerized-php:prod
