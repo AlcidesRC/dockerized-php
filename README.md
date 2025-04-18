@@ -14,12 +14,12 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.12-fpm-alpine** with Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.3.2-fpm-alpine** with Caddy support.
 
 ### Highlights
 
-- Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u> and/or <u>micro-services</u> based on **PHP8**.
-- Multi-stage Dockerfile to allows you to create an optimized **development** or **production-ready** Docker images
+- Unified environment to build <abbr title="Command Line Interface">CLI</abbr>, <u>web applications</u>, and/or <u>micro-services</u> based on **PHP 8**.
+- Multi-stage Dockerfile allows you to create optimized **development** or **production-ready** Docker images.
 - Uses **Caddy webserver**.
 - **Self-signed local domains** thanks to Caddy.
 - **Everything on separated Docker services**.
@@ -77,15 +77,15 @@ $ git clone git@github.com:alcidesrc/dockerized-php.git .
 
 ##### Defined Stages
 
-| Name                        | Description                                                                          |
-| --------------------------- | ------------------------------------------------------------------------------------ |
-| `base-image`                | Used to define the base Docker image                                                 |
-| `common`                    | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc.                      |
-| `extensions-builder-common` | Used to build generic PHP extensions                                                 |
-| `extensions-builder-dev`    | Used to build **development** PHP extensions                                         |
-| `build-development`         | Used to build the development environment                                            |
-| `optimize-php-dependencies` | Used to optimize the PHP dependencies in production by removing the development ones |
-| `build-production`          | Used to build the **production** environment                                         |
+| Name                             | Description                                                  |
+| -------------------------------- | ------------------------------------------------------------ |
+| `base-image`                     | Used to define the base Docker image                         |
+| `common`                         | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc. |
+| `extensions-builder-required`    | Used to build required PHP extensions                        |
+| `extensions-builder-development` | Used to build **development** PHP extensions                 |
+| `build-development`              | Used to build the development environment                    |
+| `optimize-php-dependencies`      | Used to optimize the PHP dependencies in production by removing the development ones |
+| `build-production`               | Used to build the **production** environment                 |
 
 ###### Defined Stages Hierarchy
 
@@ -96,12 +96,12 @@ title: Dockerfile Stages Hierarchy
 stateDiagram-v2
     [*] --> BaseImage
     BaseImage --> Common
-    Common --> ExtensionsBuilderCommon
+    Common --> ExtensionsBuilderRequired
     
-    ExtensionsBuilderCommon --> ExtensionsBuilderDev
-    ExtensionsBuilderDev --> BuildDevelopment
+    ExtensionsBuilderRequired --> ExtensionsBuilderDevelopment
+    ExtensionsBuilderDevelopment --> BuildDevelopment
     
-    ExtensionsBuilderCommon --> OptimizePhpDependencies
+    ExtensionsBuilderRequired --> OptimizePhpDependencies
     OptimizePhpDependencies --> BuildProduction
 ```
 
@@ -161,21 +161,20 @@ The container service logs to `STDOUT` by default.
 #### Project Structure
 
 ```text
-├── build                           	# Docker-related configuration files
-│   ├── Caddyfile                   	# Caddy's configuration file
-│   ├── healthcheck.sh              	# Shell script for Docker's HEALTHCHECK  directive
-│   ├── www.conf                    	# PHP-FPM configuration file
-│   └── xdebug.ini                  	# xDebug configuration file
-├── README                              # README.md required assets
-├── src                             	# PHP application folder
-├── caddy-root-ca-authority.crt     	# Generated certificate file with Caddy Root CA Authority details
-├── docker-compose.override.dev.yml     # Docker Compose file for development environment
-├── docker-compose.override.prod.yml	# Docker Compose file for production environment
-├── docker-compose.yml              	# Docker Compose base file
-├── Dockerfile
+├── caddy-root-ca-authority.crt              # Generated certificate file with Caddy Root CA Authority details
+├── docker                                   # Folder with assets required to build the infrastructure
+│   ├── caddy                                # Folder with Caddy's configuration file(s)
+│   ├── docker-compose.override.dev.yml      # Docker Compose file for development environment
+│   ├── docker-compose.override.prod.yml     # Docker Compose file for production environment
+│   ├── docker-compose.yml                   # Docker Compose base file
+│   ├── Dockerfile                           # Dockerfile to build the PHP-FPM image 
+│   ├── healthcheck.sh                       # Shell script for Docker's HEALTHCHECK directive
+│   └── php-fpm                              # Folder with PHP-FPM configuration file(s)
 ├── LICENSE
 ├── Makefile
-└── README.md
+├── README                                   # Folder with README.md required assets
+├── README.md
+└── src                                      # PHP application folder
 ```
 
 ##### Volumes
@@ -190,7 +189,7 @@ There is a **bind volume** created between the *host* and the container service:
 
 > [!NOTE]
 >
-> Review the `docker-compose.xxx.yml` files and adjust the volumes to your convenience.
+> Review the `docker-compose.dev.yml` files and adjust the volumes to your convenience.
 
 
 
@@ -218,19 +217,31 @@ A *Makefile* is provided with following commands:
 · USER ......... (1000) alcidesramos
 · GROUP ........ (1000) alcidesramos
 
-· build                               Docker: builds the service <env=[dev|prod]>
-· up                                  Docker: starts the service <env=[dev|prod]>
-· restart                             Docker: restarts the service <env=[dev|prod]>
-· down                                Docker: stops the service <env=[dev|prod]>
-· logs                                Docker: exposes the service logs <env=[dev|prod]> <service=[app1|caddy]>
-· shell                               Docker: establish a shell session into main container
-· inspect                             Docker: inspect the health for specific service <service=[app1|caddy]>
+· build                               Docker: builds service(s) image(s) <env=[dev|prod]>
+· up                                  Docker: starts service(s) <env=[dev|prod]>
+· restart                             Docker: restarts service(s) <env=[dev|prod]>
+· down                                Docker: stops service(s) <env=[dev|prod]>
+· logs                                Docker: exposes main service logs <env=[dev|prod]> <service=[app1|caddy]>
+· shell                               Docker: establish a shell terminal with main service
+· inspect                             Docker: inspect the service health <service=[app1|caddy]>
+· composer-dump                       Composer: executes <composer dump-auto> inside the container
+· composer-install                    Composer: executes <composer install> inside the container
+· composer-remove                     Composer: executes <composer remove> inside the container
+· composer-require-dev                Composer: executes <composer require --dev> inside the container
+· composer-require                    Composer: executes <composer require> inside the container
+· composer-update                     Composer: executes <composer update> inside the container
+· check-syntax                        QA: Executes <composer check-syntax> inside the container
+· check-style                         QA: Executes <composer check-style> inside the container
+· fix-style                           QA: executes <composer fix-style> inside the container
+· phpstan                             QA: executes <composer phpstan> inside the container
+· test                                QA: executes <composer paratest>
+· coverage                            QA: executes <composer paracoverage> inside the container
 · install-caddy-certificate           Setup: extracts the Caddy Local Authority certificate
 · install-skeleton                    Application: installs PHP Skeleton
 · install-laravel                     Application: installs Laravel
 · install-symfony                     Application: installs Symfony
 · uninstall                           Application: removes the PHP application
-· open-website                        Application: open the application website
+· open-website                        Application: opens the application URL
 · init                                Application: initializes the application
 ```
 
@@ -293,7 +304,7 @@ PHP application must be placed into `src` folder.
 
 > [!TIP]
 >
-> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/alcidesrc/php-skeleton) as boilerplate or [Laravel](https://github.com/laravel/laravel) when creating `PHP` applications from scratch.
+> There are some `Makefile` commands that allows you to install a [PHP Skeleton](https://github.com/alcidesrc/php-skeleton) as boilerplate, [Laravel](https://github.com/laravel/laravel) or [Symfony](https://symfony.com/) when creating `PHP` applications from scratch.
 
 
 
@@ -343,6 +354,20 @@ $ make install-caddy-certificate
 
 ```bash
 $ make open-website
+```
+
+###### Service logs
+
+```bash
+$ make logs service=caddy
+$ make logs service=app1
+```
+
+###### Inspecting services
+
+```bash
+$ make inspect service=caddy
+$ make inspect service=app1
 ```
 
 ###### Stopping the container service
@@ -428,13 +453,27 @@ $ make install-caddy-certificate env=prod
 $ make open-website env=prod
 ```
 
+###### Service logs
+
+```bash
+$ make logs service=caddy env=prod 
+$ make logs service=app1 env=prod
+```
+
+###### Inspecting services
+
+```bash
+$ make inspect service=caddy env=prod
+$ make inspect service=app1 env=prod
+```
+
 ###### Stopping the container service
 
 ```bash
 $ make down env=prod
 ```
 
-#### 
+
 
 ------
 
