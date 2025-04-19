@@ -1,0 +1,64 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+
+    env:
+      ENV: DEVELOPMENT
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [ubuntu-latest]
+        php: ['8.3']
+        dependency_version: [prefer-dist, prefer-source]
+
+    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency_version }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP & Enable Extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ runner.php }}
+          extensions: uopz
+          coverage: pcov
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --working-dir=. --strict
+
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v4
+        with:
+          path: ./src/vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
+
+      - name: Install PHP dependencies
+        run: composer install --working-dir=. --${{ matrix.dependency_version }} --no-interaction --no-progress --ansi
+
+      - name: Check PHP Syntax
+        run: composer check-syntax
+
+      - name: Check Coding Standards
+        run: composer check-style
+
+      - name: Check with PHPStan
+        run: composer phpstan
+
+      - name: Check Test Cases
+        run: composer paratest

@@ -37,6 +37,7 @@ To use this repository you need:
 - [Git](https://git-scm.com/) - The free and open source distributed version control system.
 - [Make](https://www.gnu.org/software/make/) - A command to automate the build/manage process.
 - [jq](https://jqlang.github.io/jq/download/) - A lightweight and flexible command-line JSON processor.
+- [Gum](https://github.com/charmbracelet/gum) - A tool for glamorous shell scripts.
 
 
 
@@ -46,13 +47,14 @@ To use this repository you need:
 
 ## Built with
 
-| Type           | Component                                                | Description                                                  |
-| -------------- | -------------------------------------------------------- | ------------------------------------------------------------ |
-| Infrastructure | [Docker](https://www.docker.com/)                        | Containerization platform                                    |
-| Service        | [Caddy Server](https://caddyserver.com/)                 | Open source web server with automatic HTTPS written in Go    |
-| Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php) | PHP with FastCGI Process Manager                             |
-| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows to execute commands defined on a _Makefile_           |
-| Miscelaneous   | [jq](https://jqlang.github.io/jq/download/)              | Allows to beautify the Docker inspections in JSON format     |
+| Type           | Component                                                | Description                                               |
+| -------------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| Infrastructure | [Docker](https://www.docker.com/)                        | Containerization platform                                 |
+| Service        | [Caddy Server](https://caddyserver.com/)                 | Open source web server with automatic HTTPS written in Go |
+| Service        | [PHP-FPM](https://www.php.net/manual/en/install.fpm.php) | PHP with FastCGI Process Manager                          |
+| Miscelaneous   | [Make](https://www.gnu.org/software/make/)               | Allows to execute commands defined on a _Makefile_        |
+| Miscelaneous   | [jq](https://jqlang.github.io/jq/download/)              | Allows to beautify the Docker inspections in JSON format  |
+| Miscelaneous   | [Gum](https://github.com/charmbracelet/gum)              | Improves the *Makefile* with enhanced CLI widgets         |
 
 
 
@@ -161,6 +163,7 @@ The container service logs to `STDOUT` by default.
 #### Project Structure
 
 ```text
+├── .env.makefile                            # DotEnv file related with Makefile tasks
 ├── caddy-root-ca-authority.crt              # Generated certificate file with Caddy Root CA Authority details
 ├── docker                                   # Folder with assets required to build the infrastructure
 │   ├── caddy                                # Folder with Caddy's configuration file(s)
@@ -173,6 +176,7 @@ The container service logs to `STDOUT` by default.
 ├── LICENSE
 ├── Makefile
 ├── README                                   # Folder with README.md required assets
+├── README-CADDY.md
 ├── README.md
 └── src                                      # PHP application folder
 ```
@@ -207,42 +211,41 @@ A *Makefile* is provided with following commands:
 ```bash
 ~/path/to/my-new-project$ make
 
-╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗
-║                                                                                                        ║
-║                                    .: AVAILABLE COMMANDS :.                                            ║
-║                                                                                                        ║
-╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝
-· DOMAIN(s) .... https://localhost
-· SERVICE(s) ... caddy app1
-· USER ......... (1000) alcidesramos
-· GROUP ........ (1000) alcidesramos
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                            .: AVAILABLE COMMANDS :.                            ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+🔹 ENVIRONMENT ... dev                                                          
+🔹 DOMAIN URL .... https://localhost                                            
+🔹 SERVICE(S) .... caddy app1                                                   
+🔹 USER .......... (1000) alcidesramos                                          
+🔹 GROUP ......... (1000) alcidesramos                                          
 
-· build                               Docker: builds service(s) image(s) <env=[dev|prod]>
-· up                                  Docker: starts service(s) <env=[dev|prod]>
-· restart                             Docker: restarts service(s) <env=[dev|prod]>
-· down                                Docker: stops service(s) <env=[dev|prod]>
-· logs                                Docker: exposes main service logs <env=[dev|prod]> <service=[app1|caddy]>
-· shell                               Docker: establish a shell terminal with main service
-· inspect                             Docker: inspect the service health <service=[app1|caddy]>
-· composer-dump                       Composer: executes <composer dump-auto> inside the container
-· composer-install                    Composer: executes <composer install> inside the container
-· composer-remove                     Composer: executes <composer remove> inside the container
-· composer-require-dev                Composer: executes <composer require --dev> inside the container
-· composer-require                    Composer: executes <composer require> inside the container
-· composer-update                     Composer: executes <composer update> inside the container
-· check-syntax                        QA: Executes <composer check-syntax> inside the container
-· check-style                         QA: Executes <composer check-style> inside the container
-· fix-style                           QA: executes <composer fix-style> inside the container
-· phpstan                             QA: executes <composer phpstan> inside the container
-· test                                QA: executes <composer paratest>
-· coverage                            QA: executes <composer paracoverage> inside the container
-· install-caddy-certificate           Setup: extracts the Caddy Local Authority certificate
-· install-skeleton                    Application: installs PHP Skeleton
-· install-laravel                     Application: installs Laravel
-· install-symfony                     Application: installs Symfony
-· uninstall                           Application: removes the PHP application
-· open-website                        Application: opens the application URL
-· init                                Application: initializes the application
+Choose a command...         
+> exit                      
+  set-environment           
+  build                     
+  up                        
+  down                      
+  restart                      
+  logs                      
+  inspect                   
+  shell                     
+  composer-dump             
+  composer-install          
+  composer-update           
+  composer-require          
+  composer-require-dev      
+  check-syntax              
+  check-style               
+  fix-style                 
+  phpstan                   
+  test                      
+  coverage                  
+                            
+  ••                        
+←↓↑→ navigate • enter submit
 ```
 
 #### Web Server
@@ -267,7 +270,7 @@ The default website domain is https://localhost
 >
 > You can customize the domain name in `docker-compose.override.xxx.yml` 
 >
-> Review as well the `Makefile` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
+> Review as well the `.env.makefile` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
 
 
 
@@ -322,81 +325,175 @@ Testing with date and/or time variations sometimes can be a nightmare. To assist
 
 
 
-### Development Environment
+### Development
 
-#### Quickstart
+#### Set the environment
+
+This command allows to specify the environment to be working on.
 
 ```bash
-$ make init
+$ make set-environment
 ```
 
-##### TL;DR
+```bash
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                            .: AVAILABLE COMMANDS :.                            ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+🔹 ENVIRONMENT ... dev                                                         
+🔹 DOMAIN URL .... https://localhost                                            
+🔹 SERVICE(S) .... caddy app1                                                   
+🔹 USER .......... (1000) alcidesramos                                          
+🔹 GROUP ......... (1000) alcidesramos                                          
 
-###### Building the container
+Setting up Makefile environment...
+> dev                             
+  prod     
+```
+
+> [!TIP]
+>
+> This value is persisted on `.env.makefile` file to improve the UX.
+
+#### Building the container
 
 ```bash
 $ make build
 ```
 
-###### Starting the container service
+#### Starting the container service
 
 ```bash
 $ make up
 ```
 
-###### Extracting Caddy Local Authority - 20XX ECC Root 
+#### Extracting Caddy Local Authority - 20XX ECC Root 
 
 ```bash
 $ make install-caddy-certificate
 ```
 
-###### Accessing to web application
+#### Accessing to web application
 
 ```bash
 $ make open-website
 ```
 
-###### Service logs
+#### Service logs
 
 ```bash
-$ make logs service=caddy
-$ make logs service=app1
+$ make logs
 ```
 
-###### Inspecting services
+#### Inspecting services
 
 ```bash
-$ make inspect service=caddy
-$ make inspect service=app1
+$ make inspect
 ```
 
-###### Stopping the container service
+#### Stopping the container service
 
 ```bash
 $ make down
 ```
 
-#### Setup PHPStorm
+### Production
 
-##### Help > Change Memory Settings
+#### Setup the environment
+
+This command allows to specify the environment to be working on.
+
+```bash
+$ make set-environment
+```
+
+```bash
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                ║
+║                            .: AVAILABLE COMMANDS :.                            ║
+║                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+🔹 ENVIRONMENT ... dev                                                         
+🔹 DOMAIN URL .... https://localhost                                            
+🔹 SERVICE(S) .... caddy app1                                                   
+🔹 USER .......... (1000) alcidesramos                                          
+🔹 GROUP ......... (1000) alcidesramos                                          
+
+Setting up Makefile environment...
+  dev                             
+> prod     
+```
+
+> [!TIP]
+>
+> This value is persisted on `.env.makefile` file to improve the UX.
+
+#### Building the container
+
+```bash
+$ make build
+```
+
+#### Starting the container service
+
+```bash
+$ make up
+```
+
+#### Extracting Caddy Local Authority - 20XX ECC Root 
+
+```bash
+$ make install-caddy-certificate
+```
+
+#### Accessing to web application
+
+```bash
+$ make open-website
+```
+
+#### Service logs
+
+```bash
+$ make logs
+```
+
+#### Inspecting services
+
+```bash
+$ make inspect
+```
+
+#### Stopping the container service
+
+```bash
+$ make down
+```
+
+
+
+### Debug / Setup PHPStorm
+
+#### Help > Change Memory Settings
 
 To allow PHPStorm index huge projects consider to increase the default assigned memory amount from 2048 MiB up to 8192 MiB. 
 
 ![phpstorm-memory-settings](README/setup-phpstorm-memory/phpstorm-memory-settings.png)
 
-##### Settings > PHP > Debug
+#### Settings > PHP > Debug
 
 Ensure the `Max. simultaneous connections` is set to 1 to avoid trace collisions when debugging.
 
 ![phpstorm-debug](README/setup-phpstorm-xdebug/phpstorm-settings-php-debug.png)
 
-##### Settings > PHP > Servers
+#### Settings > PHP > Servers
 
 Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
 ![phpstorm-settings-php-servers](README/setup-phpstorm-xdebug/phpstorm-settings-php-servers.png)
 
-##### Settings > PHP
+#### Settings > PHP
 
 ![phpstorm-settings-php-settings](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings.png)
 
@@ -416,62 +513,6 @@ Ensure the `~/path/to/my-new-project/src` folder is mapped to `/var/www/html`
 
 
 ![phpstorm-settings-php-settings-cli-interpreter-configuration-files](README/setup-phpstorm-xdebug/phpstorm-settings-php-settings-cli-interpreter-configuration-files.png)
-
-
-
-### Production Environment
-
-#### Quickstart
-
-```bash
-$ make init env=prod
-```
-
-##### TL;DR
-
-###### Building the container
-
-```bash
-$ make build env=prod
-```
-
-###### Starting the container service
-
-```bash
-$ make up env=prod
-```
-
-###### Extracting Caddy Local Authority - 20XX ECC Root 
-
-```bash
-$ make install-caddy-certificate env=prod
-```
-
-###### Accessing to web application
-
-```bash
-$ make open-website env=prod
-```
-
-###### Service logs
-
-```bash
-$ make logs service=caddy env=prod 
-$ make logs service=app1 env=prod
-```
-
-###### Inspecting services
-
-```bash
-$ make inspect service=caddy env=prod
-$ make inspect service=app1 env=prod
-```
-
-###### Stopping the container service
-
-```bash
-$ make down env=prod
-```
 
 
 

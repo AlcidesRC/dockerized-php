@@ -1,41 +1,18 @@
 .DEFAULT_GOAL := help
 
+MAKEFLAGS += $(if $(value VERBOSE),,--no-print-directory)
+
+###
+# ENVIRONMENT VARIABLES
+###
+
+include .env.makefile
+
+export $(shell sed 's/=.*//' .env.makefile)
+
 ###
 # CONSTANTS
 ###
-
-ifneq (,$(findstring xterm,$(TERM)))
-	BLACK   := $(shell tput -Txterm setaf 0)
-	RED     := $(shell tput -Txterm setaf 1)
-	GREEN   := $(shell tput -Txterm setaf 2)
-	YELLOW  := $(shell tput -Txterm setaf 3)
-	BLUE    := $(shell tput -Txterm setaf 4)
-	MAGENTA := $(shell tput -Txterm setaf 5)
-	CYAN    := $(shell tput -Txterm setaf 6)
-	WHITE   := $(shell tput -Txterm setaf 7)
-	RESET   := $(shell tput -Txterm sgr0)
-else
-	BLACK   := ""
-	RED     := ""
-	GREEN   := ""
-	YELLOW  := ""
-	BLUE    := ""
-	MAGENTA := ""
-	CYAN    := ""
-	WHITE   := ""
-	RESET   := ""
-endif
-
-#---
-
-SERVICE_CADDY = caddy
-SERVICE_APP   = app1
-
-#---
-
-WEBSITE_URL = https://localhost
-
-#---
 
 HOST_USER_ID    := $(shell id --user)
 HOST_USER_NAME  := $(shell id --user --name)
@@ -44,304 +21,276 @@ HOST_GROUP_NAME := $(shell id --group --name)
 
 #---
 
-DOCKER_COMPOSE         = docker compose --file docker/docker-compose.yml --file docker/docker-compose.override.$(env).yml
+DOCKER_COMPOSE         = docker compose --file docker/docker-compose.yml --file docker/docker-compose.override.$(APP_ENV).yml
 
 DOCKER_BUILD_ARGUMENTS = --build-arg="HOST_USER_ID=$(HOST_USER_ID)" --build-arg="HOST_USER_NAME=$(HOST_USER_NAME)" --build-arg="HOST_GROUP_ID=$(HOST_GROUP_ID)" --build-arg="HOST_GROUP_NAME=$(HOST_GROUP_NAME)"
 
 DOCKER_RUN_AS_ROOT     = $(DOCKER_COMPOSE) run -it --rm $(SERVICE_APP)
 DOCKER_RUN_AS_USER     = $(DOCKER_COMPOSE) run -it --rm --user $(HOST_USER_ID):$(HOST_GROUP_ID) $(SERVICE_APP)
 
+#---
+
+IS_INSTALLED_GUM := $(shell dpkg -s gum 2>/dev/null | grep -q 'Status: install ok installed' && echo 0 || echo 1)
+
 ###
 # FUNCTIONS
 ###
 
-require-%:
-	@if [ -z "$($(*))" ] ; then \
-		echo "" ; \
-		echo " ${RED}⨉${RESET} Parameter [ ${YELLOW}${*}${RESET} ] is required!" ; \
-		echo "" ; \
-		echo " ${YELLOW}ℹ${RESET} Usage [ ${YELLOW}make <command>${RESET} ${RED}${*}=${RESET}${YELLOW}xxxx${RESET} ]" ; \
-		echo "" ; \
-		exit 1 ; \
-	fi;
+define showInfo
+	@echo ":small_orange_diamond: $(1)" | gum format -t emoji
+	@echo ""
+endef
+
+define showAlert
+	@echo ":heavy_exclamation_mark: $(1)" | gum format -t emoji
+	@echo ""
+endef
 
 define taskDone
 	@echo ""
-	@echo " ${GREEN}✓${RESET}  ${GREEN}Task done!${RESET}"
+	@echo ":small_blue_diamond: Task done!" | gum format -t emoji
 	@echo ""
 endef
 
-# $(1)=TEXT $(2)=EXTRA
-define showInfo
-	@echo " ${YELLOW}ℹ${RESET}  $(1) $(2)" | sed "s/\((.*)\)/\1/g"
-endef
+###
+# MISCELANEOUS
+###
 
-# $(1)=TEXT $(2)=EXTRA
-define showAlert
-	@echo " ${RED}!${RESET}  $(1) $(2)" | sed "s/\((.*)\)/\1/g"
-endef
+.PHONY: set-environment
+set-environment:
+	$(eval APP_ENV=$(shell gum choose --header "Setting up Makefile environment..." --selected "dev" "dev" "prod"))
+	@gum spin --spinner dot --title "Persisting your selection..." -- sleep 1
+	@sed -i 's/^APP_ENV=.*/APP_ENV=$(APP_ENV)/' .env.makefile
+	$(MAKE) help
 
-# $(1)=NUMBER $(2)=TEXT
-define orderedList
+.PHONY: ensure_gum_is_installed
+ensure_gum_is_installed:
+	@if [ "${IS_INSTALLED_GUM}" = "1" ] ; then \
+    	clear ; \
+    	echo "🔸 Installing dependencies..." ; \
+    	echo "" ; \
+    	sudo mkdir -p /etc/apt/keyrings ; \
+		curl -fsSL https://repo.charm.sh/apt/gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/charm.gpg ; \
+		echo "deb [signed-by=/etc/apt/keyrings/charm.gpg] https://repo.charm.sh/apt/ * *" | sudo tee /etc/apt/sources.list.d/charm.list ; \
+		sudo apt update && sudo apt install gum ; \
+	fi;
+
+.PHONY: require-confirmation
+require-confirmation:
+	$(eval CONFIRMATION=$(shell gum confirm "Are you sure?" && echo "Y" || echo "N"))
+
+.PHONY: choose-service
+choose-service:
+	$(eval SERVICE=$(shell gum choose --header "Select a service..." --selected "app1" "app1" "caddy"))
+
+.PHONY: exit
+exit:
+	$(call showInfo,"See you soon!")
+	@exit 0;
+
+.PHONY: welcome
+welcome:
+	@clear
+	@gum style --align center --width 80 --padding "1 2" --border double --border-foreground 99 ".: AVAILABLE COMMANDS :."
+	@echo ":small_blue_diamond: ENVIRONMENT ... $(APP_ENV)" | gum format -t emoji
+	@echo ":small_blue_diamond: DOMAIN URL .... $(WEBSITE_URL)" | gum format -t emoji
+	@echo ":small_blue_diamond: SERVICE(S) .... $(shell docker ps --format '{{.Names}}')" | gum format -t emoji
+	@echo ":small_blue_diamond: USER .......... ($(HOST_USER_ID)) $(HOST_USER_NAME)" | gum format -t emoji
+	@echo ":small_blue_diamond: GROUP ......... ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME)" | gum format -t emoji
 	@echo ""
-	@echo " ${CYAN}$(1).${RESET}  ${CYAN}$(2)${RESET}"
-	@echo ""
-endef
-
-define pad
-	$(shell printf "%-$(1)s" " ")
-endef
 
 ###
 # HELP
 ###
 
 .PHONY: help
-help:
-	@clear
-	@echo "${BLACK}"
-	@echo "╔════════════════════════════════════════════════════════════════════════════════════════════════════════╗"
-	@echo "║ $(call pad,96) ║"
-	@echo "║ $(call pad,32) ${YELLOW}.:${RESET} AVAILABLE COMMANDS ${YELLOW}:.${BLACK} $(call pad,32) ║"
-	@echo "║ $(call pad,96) ║"
-	@echo "╚════════════════════════════════════════════════════════════════════════════════════════════════════════╝"
-	@echo "${BLACK}·${RESET} ${MAGENTA}DOMAIN(s)${BLACK} .... ${CYAN}$(WEBSITE_URL)${BLACK}"
-	@echo "${BLACK}·${RESET} ${MAGENTA}SERVICE(s)${BLACK} ... ${CYAN}$(shell docker ps --format "{{.Names}}")${BLACK}"
-	@echo "${BLACK}·${RESET} ${MAGENTA}USER${BLACK} ......... ${WHITE}(${CYAN}$(HOST_USER_ID)${WHITE})${BLACK} ${CYAN}$(HOST_USER_NAME)${BLACK}"
-	@echo "${BLACK}·${RESET} ${MAGENTA}GROUP${BLACK} ........ ${WHITE}(${CYAN}$(HOST_GROUP_ID)${WHITE})${BLACK} ${CYAN}$(HOST_GROUP_NAME)${BLACK}"
-	@echo "${RESET}"
-	@grep -E '^[a-zA-Z_0-9%-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "${BLACK}·${RESET} ${YELLOW}%-35s${RESET} %s\n", $$1, $$2}'
-	@echo ""
+help: ensure_gum_is_installed welcome
+	$(eval OPTION=$(shell gum choose --height 20 --header "Choose a command..." --selected "exit" "exit" "set-environment" "build" "up" "down" "restart" "logs" "inspect" "shell" "composer-dump" "composer-install" "composer-update" "composer-require" "composer-require-dev" "check-syntax" "check-style" "fix-style" "phpstan" "test" "coverage" "install-caddy-certificate" "install-skeleton" "install-laravel" "install-symfony" "uninstall-app" "open-website"))
+	@$(MAKE) ${OPTION}
 
 ###
 # DOCKER RELATED
 ###
 
 .PHONY: build
-build: ## Docker: builds service(s) image(s) <env=[dev|prod]>
-	@$(eval env ?= 'dev')
+build:
 	$(call showInfo,"Building Docker image\(s\)...")
-	@echo ""
 	@COMPOSE_BAKE=true $(DOCKER_COMPOSE) build $(DOCKER_BUILD_ARGUMENTS)
 	$(call taskDone)
 
 .PHONY: up
-up: ## Docker: starts service(s) <env=[dev|prod]>
-	@$(eval env ?= 'dev')
+up:
 	$(call showInfo,"Starting service\(s\)...")
-	@echo ""
 	@$(DOCKER_COMPOSE) up --remove-orphans --detach
 	$(call taskDone)
 
-.PHONY: restart
-restart: ## Docker: restarts service(s) <env=[dev|prod]>
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Restarting service\(s\)...")
-	@echo ""
-	@$(DOCKER_COMPOSE) restart
-	$(call taskDone)
-
 .PHONY: down
-down: ## Docker: stops service(s) <env=[dev|prod]>
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Stopping service\(s\)...")
-	@echo ""
+down:
+	$(call showInfo,"Starting service\(s\)...")
 	@$(DOCKER_COMPOSE) down --remove-orphans
 	$(call taskDone)
 
-.PHONY: logs
-logs: ## Docker: exposes main service logs <env=[dev|prod]> <service=[app1|caddy]>
-	@$(eval env ?= 'dev')
-	@$(eval service ?= $(SERVICE_APP))
-	$(call showInfo,"Exposing [ $(service) ] service logs...")
-	@echo ""
-	@$(DOCKER_COMPOSE) logs -f $(service)
+.PHONY: restart
+restart:
+	$(call showInfo,"Starting service\(s\)...")
+	@$(DOCKER_COMPOSE) restart
 	$(call taskDone)
 
-.PHONY: shell
-shell: ## Docker: establish a shell terminal with main service
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Establishing a shell terminal with [ $(SERVICE_APP) ] service...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) sh
+.PHONY: logs
+logs:
+	@clear
+	$(call showInfo,"Exposing service\(s\) logs...")
+	@$(DOCKER_COMPOSE) logs -f
 	$(call taskDone)
 
 .PHONY: inspect
-inspect: ## Docker: inspect the service health <service=[app1|caddy]>
-	@$(eval service ?= $(SERVICE_APP))
-	$(call showInfo,"Inspecting the [ $(service) ] service health...")
-	@echo ""
-	@docker inspect --format "{{json .State.Health}}" $(service) | jq
-	@echo ""
+inspect: choose-service
+	@clear
+	$(call showInfo,"Inspecting [ $(SERVICE) ] health...")
+	@docker inspect --format "{{json .State.Health}}" $(SERVICE) | jq
+	$(call taskDone)
+
+.PHONY: shell
+shell:
+	@clear
+	$(call showInfo,"Establishing a shell terminal with [ $(SERVICE_APP) ] service...")
+	@$(DOCKER_RUN_AS_USER) sh
 	$(call taskDone)
 
 ###
-# COMPOSER
+# CADDY / SSL CERTIFICATE
+###
+
+.PHONY: install-caddy-certificate
+install-caddy-certificate:
+	$(call showInfo,"Installing [ Caddy 20XX ECC Root ] as a valid Local Certificate Authority")
+	@gum spin --spinner dot --title "Copy the root certificate from Caddy Docker container..." -- sleep 1
+	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
+	@gum pager < README-CADDY.md
+	$(call taskDone)
+
+###
+# APP / COMPOSER RELATED
 ###
 
 .PHONY: composer-dump
-composer-dump: ## Composer: executes <composer dump-auto> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Dumping dependencies...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer dump-auto --ansi --no-plugins --profile --classmap-authoritative --apcu --strict-psr
+composer-dump:
+	@clear
+	$(call showInfo,"Executing [ composer dump-auto ] inside [ $(SERVICE_APP) ] container service...")
+	@$(DOCKER_RUN_AS_USER) composer dump-auto
 	$(call taskDone)
 
 .PHONY: composer-install
-composer-install: ## Composer: executes <composer install> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Installing a dependency...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer install --ansi --no-plugins --classmap-authoritative --audit --apcu-autoloader
-	$(call taskDone)
-
-.PHONY: composer-remove
-composer-remove: require-package ## Composer: executes <composer remove> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Removing a dependency...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer remove --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --unused
-	$(call taskDone)
-
-.PHONY: composer-require-dev
-composer-require-dev: ## Composer: executes <composer require --dev> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Requiring a development dependency...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages --dev
-	$(call taskDone)
-
-.PHONY: composer-require
-composer-require: ## Composer: executes <composer require> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Requiring a dependency...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer require --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies --prefer-stable --sort-packages
+composer-install:
+	@clear
+	$(call showInfo,"Executing [ composer install ] inside [ $(SERVICE_APP) ] container service...")
+	@$(DOCKER_RUN_AS_USER) composer install
 	$(call taskDone)
 
 .PHONY: composer-update
-composer-update: ## Composer: executes <composer update> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Updating dependencies...")
-	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer update --ansi --no-plugins --classmap-authoritative --apcu-autoloader --with-all-dependencies
+composer-update:
+	@clear
+	$(call showInfo,"Executing [ composer update ] inside [ $(SERVICE_APP) ] container service...")
+	@$(DOCKER_RUN_AS_USER) composer update
+	$(call taskDone)
+
+.PHONY: composer-require
+composer-require:
+	@clear
+	$(call showInfo,"Executing [ composer require ] inside [ $(SERVICE_APP) ] container service...")
+	@$(DOCKER_RUN_AS_USER) composer require
+	$(call taskDone)
+
+.PHONY: composer-require-dev
+composer-require-dev:
+	@clear
+	$(call showInfo,"Executing [ composer require --dev ] inside [ $(SERVICE_APP) ] container service...")
+	@$(DOCKER_RUN_AS_USER) composer require --dev
 	$(call taskDone)
 
 ###
-# QA
+# APP / QA RELATED
 ###
 
 .PHONY: check-syntax
-check-syntax: ## QA: Executes <composer check-syntax> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Check code syntax...")
-	@echo ""
+check-syntax:
+	@clear
+	$(call showInfo,"Executing [ composer check-syntax ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer check-syntax
 	$(call taskDone)
 
 .PHONY: check-style
-check-style: ## QA: Executes <composer check-style> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Checking code style...")
-	@echo ""
+check-style:
+	@clear
+	$(call showInfo,"Executing [ composer check-style ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer check-style
 	$(call taskDone)
 
 .PHONY: fix-style
-fix-style: ## QA: executes <composer fix-style> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Fixing code style...")
-	@echo ""
+fix-style:
+	@clear
+	$(call showInfo,"Executing [ composer fix-style ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer fix-style
 	$(call taskDone)
 
 .PHONY: phpstan
-phpstan: ## QA: executes <composer phpstan> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Executing PHPStan...")
-	@echo ""
+phpstan:
+	@clear
+	$(call showInfo,"Executing [ composer phpstan ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer phpstan
 	$(call taskDone)
 
 .PHONY: test
-test: ## QA: executes <composer paratest>
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Executing PHPUnit...")
-	@echo ""
+test:
+	@clear
+	$(call showInfo,"Executing [ composer paratest ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer paratest
 	$(call taskDone)
 
 .PHONY: coverage
-coverage: ## QA: executes <composer paracoverage> inside the container
-	@$(eval env ?= 'dev')
-	$(call showInfo,"QA: Generating the Code Coverage report...")
-	@echo ""
+coverage:
+	@clear
+	$(call showInfo,"Executing [ composer paracoverage ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer paracoverage
 	$(call taskDone)
 
 ###
-# CADDY
-###
-
-.PHONY: install-caddy-certificate
-install-caddy-certificate: up ## Setup: extracts the Caddy Local Authority certificate
-	$(call showInfo,Extracting Caddy Certificate Authority file...)
-	@echo ""
-	@echo "How to install [ $(YELLOW)Caddy Local Authority - 20XX ECC Root$(RESET) ] as a valid Certificate Authority"
-	$(call orderedList,1,"Copy the root certificate from Caddy Docker container")
-	@docker cp $(SERVICE_CADDY):/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca-authority.crt
-	$(call orderedList,2,"Install the Caddy Authority certificate into your browser")
-	@echo "$(YELLOW)Chrome-based browsers (Chrome, Brave, etc)$(RESET)"
-	@echo "- Go to [ Settings / Privacy & Security / Security / Manage Certificates / Authorities ]"
-	@echo "- Import [ ./caddy-root-ca-authority.crt ]"
-	@echo "- Check on [ Trust this certificate for identifying websites ]"
-	@echo "- Save changes"
-	@echo ""
-	@echo "$(YELLOW)Firefox browser$(RESET)"
-	@echo "- Go to [ Settings / Privacy & Security / Security / Certificates / View Certificates / Authorities ]"
-	@echo "- Import [ ./caddy-root-ca-authority.crt ]"
-	@echo "- Check on [ This certificate can identify websites ]"
-	@echo "- Save changes"
-	@echo ""
-	$(call showInfo,"For further information, please visit https://caddyserver.com/docs/running#docker-compose")
-	$(call taskDone)
-
-###
-# APPLICATION
+# APP / INSTALLERS
 ###
 
 .PHONY: install-skeleton
-install-skeleton: ## Application: installs PHP Skeleton
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Installing PHP Skeleton...")
-	@echo ""
+install-skeleton:
+	@clear
+	$(call showInfo,"Installing [ PHP Skeleton ]...")
 	@$(DOCKER_RUN_AS_USER) composer create-project alcidesrc/php-skeleton .
 	$(call taskDone)
 
 .PHONY: install-laravel
-install-laravel: ## Application: installs Laravel
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Installing Laravel...")
-	@echo ""
+install-laravel:
+	$(call showInfo,"Installing [ LaravelPHP ]...")
 	@$(DOCKER_RUN_AS_USER) composer create-project laravel/laravel .
 	$(call taskDone)
 
 .PHONY: install-symfony
-install-symfony: ## Application: installs Symfony
-	@$(eval env ?= 'dev')
-	$(call showInfo,"Installing Symfony...")
-	@echo ""
+install-symfony:
+	$(call showInfo,"Installing [ SymfonyPHP ]...")
 	@$(DOCKER_RUN_AS_USER) composer create-project symfony/skeleton .
 	$(call taskDone)
 
-.PHONY: uninstall
-uninstall: require-confirm ## Application: removes the PHP application
-	$(call showInfo,"Uninstalling PHP application...")
-	@rm -Rf ./src && mkdir ./src
-	$(call taskDone)
+.PHONY: uninstall-app
+uninstall-app: require-confirmation
+	@if [ "${CONFIRMATION}" = "Y" ] ; then \
+    	gum spin --spinner dot --title "Recreating application folder..." -- sleep 1 ; \
+    	rm -Rf ./src ; \
+		mkdir ./src ; \
+	fi;
+	@if [ "${CONFIRMATION}" = "N" ] ; then \
+    	gum spin --spinner dot --title "Nothing to do..." -- sleep 1 ; \
+	fi;
+	$(MAKE) help
 
 ###
-# MISCELANEOUS
+# SHORTCUTS
 ###
 
 .PHONY: open-website
@@ -351,6 +300,3 @@ open-website: ## Application: opens the application URL
 	@xdg-open $(WEBSITE_URL)
 	@$(call showAlert,"Press Ctrl+C to resume your session")
 	$(call taskDone)
-
-.PHONY: init
-init: build install-caddy-certificate open-website ## Application: initializes the application

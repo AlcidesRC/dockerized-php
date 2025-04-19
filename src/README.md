@@ -48,21 +48,18 @@ $ git clone git@github.com:alcidesrc/php-skeleton.git .
 
 ```text
 .
-├── app                 # Application business logic goes here
-├── public              # Public folder
-│   └── index.php       # Application entry point
-├── tests               # Tests folder
-│   └── Unit            # Unit Tests folder
-├── vendor              # Dependencies folder
-├── .gitignore          # Git ignore file
-├── composer.json       # Composer dependencies files
-├── composer.lock       # Composer lock file
-├── LICENSE             # License document
-├── Makefile            # Makefile with frequent commands
+├── app                 # Your application business logic goes here
+├── composer.json       # Application dependencies main file
+├── composer.lock       # Application dependencies locked file
+├── LICENSE
+├── Makefile
 ├── phpcs.xml           # PHPCS configuration file
 ├── phpstan.neon        # PHPStan configuration file
 ├── phpunit.xml         # PHPUnit configuration file
-└── README.md           # This document
+├── public              # Public folder
+├── README.md
+├── tests               # Tests folder
+└── vendor
 ```
 
 #### Composer commands
@@ -88,24 +85,25 @@ Additionally a *Makefile* is provided with frequently used commands:
 ```bash
 ~/path/to/my-new-project$ make
 
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                                                                              ║
-║                           .: AVAILABLE COMMANDS :.                           ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                                                                                ║
+║ 	                                 .: AVAILABLE COMMANDS :.                                ║
+║                                                                                                ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════╝
 
-· composer-dump                  [COMPOSER] Executes <composer dump-auto> inside the container
-· composer-install               [COMPOSER] Executes <composer install> inside the container
-· composer-remove                [COMPOSER] Executes <composer remove> inside the container
-· composer-require-dev           [COMPOSER] Executes <composer require --dev> inside the container
-· composer-require               [COMPOSER] Executes <composer require> inside the container
-· composer-update                [COMPOSER] Executes <composer update> inside the container
-· check-syntax                   [QA] Executes <check-syntax [filter=app]> inside the container
-· check-style                    [QA] Executes <check-style [filter=app]> inside the container
-· fix-style                      [QA] Executes <fix-style [filter=app]> inside the container
-· phpstan                        [QA] Executes <phpstan [filter=app]> inside the container
-· tests                          [QA] Executes <phpunit --testsuite=[testsuite=Unit] --filter=[filter=.]> inside the container
-· coverage                       [QA] Executes <phpunit --coverage-html=[folder=./coverage]> inside the container
+· composer-dump                  Composer: executes <composer dump-auto> inside the container
+· composer-install               Composer: executes <composer install> inside the container
+· composer-remove                Composer: executes <composer remove> inside the container
+· composer-require-dev           Composer: executes <composer require --dev> inside the container
+· composer-require               Composer: executes <composer require> inside the container
+· composer-update                Composer: executes <composer update> inside the container
+· check-syntax                   QA: executes <check-syntax> inside the container
+· check-style                    QA: executes <check-style> inside the container
+· fix-style                      QA: executes <fix-style> inside the container
+· phpstan                        QA: executes <composer phpstan> inside the container
+· test                           QA: executes <composer paratest> inside the container
+· coverage                       QA: executes <composer paracoverage> inside the container
+
 ```
 
 ##### Installing Dependencies
@@ -116,23 +114,15 @@ $ make composer-install
 
 ##### Running the Test Cases
 
-###### Default command
-
 ```bash
-$ make tests [filter="checkInvokeMethod tests/Unit/Providers/FooTest.php"]
-```
-
-###### Run only Unit testsuite
-
-```bash
-$ make tests-unit [filter="checkInvokeMethod tests/Unit/Providers/FooTest.php"]
+$ make test
 ```
 
 #### Volumes
 
 ##### Coverage report in HTML
 
-Coverage report in HTML is generated on a root folder `/coverage`
+Coverage report in HTML is generated on a root folder `/.coverage`
 
 > [!TIP]
 >
