@@ -90,14 +90,20 @@ exit:
 
 .PHONY: welcome
 welcome:
+	$(eval SERVICES=$(shell docker ps --format '{{.Names}}'))
 	@clear
 	@gum style --align center --width 80 --padding "1 2" --border double --border-foreground 99 ".: AVAILABLE COMMANDS :."
-	@echo ":small_blue_diamond: ENVIRONMENT ... $(APP_ENV)" | gum format -t emoji
-	@echo ":small_blue_diamond: DOMAIN URL .... $(WEBSITE_URL)" | gum format -t emoji
-	@echo ":small_blue_diamond: SERVICE(S) .... $(shell docker ps --format '{{.Names}}')" | gum format -t emoji
-	@echo ":small_blue_diamond: USER .......... ($(HOST_USER_ID)) $(HOST_USER_NAME)" | gum format -t emoji
-	@echo ":small_blue_diamond: GROUP ......... ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME)" | gum format -t emoji
-	@echo ""
+	@echo ':small_blue_diamond: ENVIRONMENT ... {{ Color "212" "0" " $(APP_ENV) " }}' | gum format -t emoji | gum format -t template
+	@echo ''
+	@echo ':small_blue_diamond: DOMAIN URL .... {{ Color "212" "0" " $(WEBSITE_URL) " }}' | gum format -t emoji | gum format -t template
+	@echo ''
+	@echo ':small_blue_diamond: USER .......... {{ Color "212" "0" " ($(HOST_USER_ID)) $(HOST_USER_NAME) " }}' | gum format -t emoji | gum format -t template
+	@echo ''
+	@echo ':small_blue_diamond: GROUP ......... {{ Color "212" "0" " ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME) " }}' | gum format -t emoji | gum format -t template
+	@echo ''
+	@echo ':small_blue_diamond: SERVICE(S) .... {{ Color "212" "0" " $(SERVICES) " }}' | gum format -t emoji | gum format -t template
+	@echo ''
+	@echo ''
 
 ###
 # HELP
@@ -138,21 +144,18 @@ restart:
 
 .PHONY: logs
 logs:
-	@clear
 	$(call showInfo,"Exposing service\(s\) logs...")
 	@$(DOCKER_COMPOSE) logs -f
 	$(call taskDone)
 
 .PHONY: inspect
 inspect: choose-service
-	@clear
 	$(call showInfo,"Inspecting [ $(SERVICE) ] health...")
 	@docker inspect --format "{{json .State.Health}}" $(SERVICE) | jq
 	$(call taskDone)
 
 .PHONY: shell
 shell:
-	@clear
 	$(call showInfo,"Establishing a shell terminal with [ $(SERVICE_APP) ] service...")
 	@$(DOCKER_RUN_AS_USER) sh
 	$(call taskDone)
@@ -175,35 +178,30 @@ install-caddy-certificate:
 
 .PHONY: composer-dump
 composer-dump:
-	@clear
 	$(call showInfo,"Executing [ composer dump-auto ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer dump-auto
 	$(call taskDone)
 
 .PHONY: composer-install
 composer-install:
-	@clear
 	$(call showInfo,"Executing [ composer install ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer install
 	$(call taskDone)
 
 .PHONY: composer-update
 composer-update:
-	@clear
 	$(call showInfo,"Executing [ composer update ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer update
 	$(call taskDone)
 
 .PHONY: composer-require
 composer-require:
-	@clear
 	$(call showInfo,"Executing [ composer require ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer require
 	$(call taskDone)
 
 .PHONY: composer-require-dev
 composer-require-dev:
-	@clear
 	$(call showInfo,"Executing [ composer require --dev ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer require --dev
 	$(call taskDone)
@@ -214,42 +212,36 @@ composer-require-dev:
 
 .PHONY: check-syntax
 check-syntax:
-	@clear
 	$(call showInfo,"Executing [ composer check-syntax ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer check-syntax
 	$(call taskDone)
 
 .PHONY: check-style
 check-style:
-	@clear
 	$(call showInfo,"Executing [ composer check-style ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer check-style
 	$(call taskDone)
 
 .PHONY: fix-style
 fix-style:
-	@clear
 	$(call showInfo,"Executing [ composer fix-style ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer fix-style
 	$(call taskDone)
 
 .PHONY: phpstan
 phpstan:
-	@clear
 	$(call showInfo,"Executing [ composer phpstan ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer phpstan
 	$(call taskDone)
 
 .PHONY: test
 test:
-	@clear
 	$(call showInfo,"Executing [ composer paratest ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer paratest
 	$(call taskDone)
 
 .PHONY: coverage
 coverage:
-	@clear
 	$(call showInfo,"Executing [ composer paracoverage ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer paracoverage
 	$(call taskDone)
@@ -260,7 +252,6 @@ coverage:
 
 .PHONY: install-skeleton
 install-skeleton:
-	@clear
 	$(call showInfo,"Installing [ PHP Skeleton ]...")
 	@$(DOCKER_RUN_AS_USER) composer create-project alcidesrc/php-skeleton .
 	$(call taskDone)
