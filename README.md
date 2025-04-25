@@ -163,7 +163,7 @@ The container service logs to `STDOUT` by default.
 #### Project Structure
 
 ```text
-├── .env.makefile                            # DotEnv file related with Makefile tasks
+├── .env                                     # DotEnv file related with Makefile tasks
 ├── caddy-root-ca-authority.crt              # Generated certificate file with Caddy Root CA Authority details
 ├── docker                                   # Folder with assets required to build the infrastructure
 │   ├── caddy                                # Folder with Caddy's configuration file(s)
@@ -172,6 +172,7 @@ The container service logs to `STDOUT` by default.
 │   ├── docker-compose.yml                   # Docker Compose base file
 │   ├── Dockerfile                           # Dockerfile to build the PHP-FPM image 
 │   ├── healthcheck.sh                       # Shell script for Docker's HEALTHCHECK directive
+│   ├── entrypoint.sh                        # Shell script for Docker's ENTRYPOINT directive
 │   └── php-fpm                              # Folder with PHP-FPM configuration file(s)
 ├── LICENSE
 ├── Makefile
@@ -270,7 +271,7 @@ The default website domain is https://localhost
 >
 > You can customize the domain name in `docker-compose.override.xxx.yml` 
 >
-> Review as well the `.env.makefile` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
+> Review as well the `.env` to ensure `WEBSITE_URL` constant has the desired domain name for development environment.
 
 
 
@@ -354,7 +355,7 @@ Setting up Makefile environment...
 
 > [!TIP]
 >
-> This value is persisted on `.env.makefile` file to improve the UX.
+> This value is persisted on `.env` file to improve the UX.
 
 #### Building the container
 
@@ -427,7 +428,7 @@ Setting up Makefile environment...
 
 > [!TIP]
 >
-> This value is persisted on `.env.makefile` file to improve the UX.
+> This value is persisted on `.env` file to improve the UX.
 
 #### Building the container
 
