@@ -68,7 +68,7 @@ Just clone the repository into your preferred path:
 
 ```bash
 $ mkdir -p ~/path/to/my-new-project && cd ~/path/to/my-new-project
-$ git clone git@github.com:alcidesrc/dockerized-php.git .
+$ git clone git@github.com:AlcidesRC/dockerized-php.git .
 ```
 
 ### Conventions
@@ -163,23 +163,22 @@ The container service logs to `STDOUT` by default.
 #### Project Structure
 
 ```text
-├── .env                                     # DotEnv file related with Makefile tasks
-├── caddy-root-ca-authority.crt              # Generated certificate file with Caddy Root CA Authority details
-├── docker                                   # Folder with assets required to build the infrastructure
-│   ├── caddy                                # Folder with Caddy's configuration file(s)
-│   ├── docker-compose.override.dev.yml      # Docker Compose file for development environment
-│   ├── docker-compose.override.prod.yml     # Docker Compose file for production environment
-│   ├── docker-compose.yml                   # Docker Compose base file
-│   ├── Dockerfile                           # Dockerfile to build the PHP-FPM image 
-│   ├── healthcheck.sh                       # Shell script for Docker's HEALTHCHECK directive
-│   ├── entrypoint.sh                        # Shell script for Docker's ENTRYPOINT directive
-│   └── php-fpm                              # Folder with PHP-FPM configuration file(s)
+.
+├── docker                                 # Folder with assets required to build the infrastructure
+│   ├── caddy                              # Folder with Caddy's configuration file(s)
+│   ├── php-fpm                            # Folder with PHP-FPM's configuration file(s)
+│   ├── docker-compose.override.dev.yml    # Docker Compose file for development environment
+│   ├── docker-compose.override.prod.yml   # Docker Compose file for production environment
+│   ├── docker-compose.yml                 # Base Docker Compose file
+│   ├── Dockerfile                         # Dockerfile to build the PHP-FPM image
+│   ├── entrypoint.sh                      # Entrypoint script which allows to customize the xDebug config file
+│   └── healthcheck.sh                     # Healthcheck script
+├── README                                 # Folder with README.md required assets
+├── src                                    # PHP application folder
 ├── LICENSE
 ├── Makefile
-├── README                                   # Folder with README.md required assets
 ├── README-CADDY.md
-├── README.md
-└── src                                      # PHP application folder
+└── README.md
 ```
 
 ##### Volumes
