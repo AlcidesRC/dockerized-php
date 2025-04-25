@@ -6,13 +6,25 @@ MAKEFLAGS += $(if $(value VERBOSE),,--no-print-directory)
 # ENVIRONMENT VARIABLES
 ###
 
-include .env.makefile
+# Create a dotEnv file if does not exists
+$(shell test -f .env || echo "APP_ENV=dev" > .env)
 
-export $(shell sed 's/=.*//' .env.makefile)
+# Load variables from dotEnv file
+include .env
+export $(shell sed 's/=.*//' .env);
 
 ###
 # CONSTANTS
 ###
+
+SERVICE_CADDY = caddy
+SERVICE_APP   = app1
+
+#---
+
+WEBSITE_URL = https://localhost
+
+#---
 
 HOST_USER_ID    := $(shell id --user)
 HOST_USER_NAME  := $(shell id --user --name)
@@ -60,7 +72,7 @@ endef
 set-environment:
 	$(eval APP_ENV=$(shell gum choose --header "Setting up Makefile environment..." --selected "dev" "dev" "prod"))
 	@gum spin --spinner dot --title "Persisting your selection..." -- sleep 1
-	@sed -i 's/^APP_ENV=.*/APP_ENV=$(APP_ENV)/' .env.makefile
+	@sed -i 's/^APP_ENV=.*/APP_ENV=$(APP_ENV)/' .env
 	$(MAKE) help
 
 .PHONY: ensure_gum_is_installed
@@ -93,16 +105,11 @@ welcome:
 	$(eval SERVICES=$(shell docker ps --format '{{.Names}}'))
 	@clear
 	@gum style --align center --width 80 --padding "1 2" --border double --border-foreground 99 ".: AVAILABLE COMMANDS :."
-	@echo ':small_blue_diamond: ENVIRONMENT ... {{ Color "212" "0" " $(APP_ENV) " }}' | gum format -t emoji | gum format -t template
-	@echo ''
-	@echo ':small_blue_diamond: DOMAIN URL .... {{ Color "212" "0" " $(WEBSITE_URL) " }}' | gum format -t emoji | gum format -t template
-	@echo ''
-	@echo ':small_blue_diamond: USER .......... {{ Color "212" "0" " ($(HOST_USER_ID)) $(HOST_USER_NAME) " }}' | gum format -t emoji | gum format -t template
-	@echo ''
-	@echo ':small_blue_diamond: GROUP ......... {{ Color "212" "0" " ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME) " }}' | gum format -t emoji | gum format -t template
-	@echo ''
-	@echo ':small_blue_diamond: SERVICE(S) .... {{ Color "212" "0" " $(SERVICES) " }}' | gum format -t emoji | gum format -t template
-	@echo ''
+	@echo ':small_blue_diamond: HOST USER ..... {{ Color "212" "0" " ($(HOST_USER_ID)) $(HOST_USER_NAME) " }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: HOST GROUP .... {{ Color "212" "0" " ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME) " }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: ENVIRONMENT ... {{ Color "212" "0" " $(APP_ENV) " }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: DOMAIN URL .... {{ Color "212" "0" " $(WEBSITE_URL) " }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: SERVICE(S) .... {{ Color "212" "0" " $(SERVICES) " }}' | gum format -t emoji | gum format -t template; echo ''
 	@echo ''
 
 ###
@@ -143,9 +150,9 @@ restart:
 	$(call taskDone)
 
 .PHONY: logs
-logs:
-	$(call showInfo,"Exposing service\(s\) logs...")
-	@$(DOCKER_COMPOSE) logs -f
+logs: choose-service
+	$(call showInfo,"Exposing [ $(SERVICE) ] logs...")
+	@$(DOCKER_COMPOSE) logs -f $(SERVICE)
 	$(call taskDone)
 
 .PHONY: inspect

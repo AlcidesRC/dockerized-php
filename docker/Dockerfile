@@ -67,8 +67,8 @@ COPY --from=composer /usr/bin/composer /usr/bin/composer
 
 # Add OS dependencies related with development
 RUN apk update && apk add --no-cache \
+        envsubst \
         git \
-        make \
         ncurses \
         util-linux
 
@@ -86,10 +86,22 @@ COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i -r "s/USER-NAME/${HOST_USER_NAME}/g" /usr/local/etc/php-fpm.d/www.conf \
     && sed -i -r "s/GROUP-NAME/${HOST_GROUP_NAME}/g" /usr/local/etc/php-fpm.d/www.conf
 
-# Setup xDebug
-COPY docker/php-fpm/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-RUN touch /var/log/xdebug.log \
-    && chown ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/log/xdebug.log
+# Setup PHP-FPM slow log
+RUN touch /var/log/www.log.slow \
+    && chown ${HOST_USER_NAME}:${HOST_GROUP_NAME} /var/log/www.log.slow
+
+# Setup entrypoint
+# Ensure the `entrypoint.sh` can be executed inside the container
+
+COPY docker/php-fpm/xdebug.ini.tmpl /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini.tmpl
+COPY --chmod=755 docker/entrypoint.sh /entrypoint.sh
+
+RUN touch /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && chown ${HOST_USER_NAME}:root /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["php-fpm"]
 
 #----------------------------------------------------------
 # STAGE: OPTIMIZE-PHP-DEPENDENCIES
@@ -136,10 +148,11 @@ COPY --from=extensions-builder-required /usr/local/etc/php/conf.d/* /usr/local/e
 # Add the optimized for production application
 COPY --from=optimize-php-dependencies --chown=www-data:www-data /app /var/www/html
 
-# Setup the FPM service name and port
-RUN sed -i -r "s/LISTEN/${LISTEN}/g" /healthcheck.sh
-
 # Setup PHP-FPM
 COPY docker/php-fpm/www.conf /usr/local/etc/php-fpm.d/www.conf
 RUN sed -i -r "s/USER-NAME/www-data/g" /usr/local/etc/php-fpm.d/www.conf \
     && sed -i -r "s/GROUP-NAME/www-data/g" /usr/local/etc/php-fpm.d/www.conf
+
+# Setup PHP-FPM slow log
+RUN touch /var/log/www.log.slow \
+    && chown www-data:www-data /var/log/www.log.slow

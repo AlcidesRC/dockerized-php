@@ -15,6 +15,16 @@ services:
         extends:
             file: docker-compose.yml
             service: app1
+        environment:
+            - PHP_XDEBUG_MODE=debug
+            - PHP_XDEBUG_START_WITH_REQUEST=yes
+            - PHP_XDEBUG_CLIENT_HOST=host.docker.internal
+            - PHP_XDEBUG_CLIENT_PORT=9900
+            - PHP_XDEBUG_MAX_NESTING_LEVEL=3000
+            - PHP_XDEBUG_OUTPUT_DIR=/tmp/xdebug
+            - PHP_XDEBUG_DISCOVER_CLIENT_HOST=false
+            - PHP_XDEBUG_LOG=/dev/stdout
+            - PHP_XDEBUG_LOG_LEVEL=0
         build:
             context: ..
             dockerfile: docker/Dockerfile
