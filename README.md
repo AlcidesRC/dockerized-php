@@ -475,6 +475,31 @@ $ make down
 
 ### Debug / Setup PHPStorm
 
+#### Docker-Compose Environment
+
+Please update the `docker-compose.override.dev.yml` file with proper `PHP_XDEBUG_CLIENT_HOST` IP address. You can get this value just by executing the following command:
+
+```bash
+$ make get-xdebug-client-host
+```
+
+So the `docker-compose.override.dev.yml` should look like:
+
+```yaml
+environment:
+    - PHP_XDEBUG_IDEKEY=PHPSTORM
+    - PHP_XDEBUG_MODE=develop,coverage,debug,profile
+    - PHP_XDEBUG_START_WITH_REQUEST=yes
+    - PHP_XDEBUG_CLIENT_HOST=172.18.0.1
+    - PHP_XDEBUG_CLIENT_PORT=9003
+    - PHP_XDEBUG_MAX_NESTING_LEVEL=3000
+    - PHP_XDEBUG_OUTPUT_DIR=/tmp/xdebug
+    - PHP_XDEBUG_DISCOVER_CLIENT_HOST=false
+    - PHP_XDEBUG_LOG=/dev/stdout
+    - PHP_XDEBUG_LOG_LEVEL=0
+...
+```
+
 #### Help > Change Memory Settings
 
 To allow PHPStorm index huge projects consider to increase the default assigned memory amount from 2048 MiB up to 8192 MiB. 

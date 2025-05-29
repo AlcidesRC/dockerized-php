@@ -118,7 +118,7 @@ welcome:
 
 .PHONY: help
 help: ensure_gum_is_installed welcome
-	$(eval OPTION=$(shell gum choose --height 20 --header "Choose a command..." --selected "exit" "exit" "set-environment" "build" "up" "down" "restart" "logs" "inspect" "shell" "composer-dump" "composer-install" "composer-update" "composer-require" "composer-require-dev" "check-syntax" "check-style" "fix-style" "phpstan" "test" "coverage" "install-caddy-certificate" "install-skeleton" "install-laravel" "install-symfony" "uninstall-app" "open-website"))
+	$(eval OPTION=$(shell gum choose --height 20 --header "Choose a command..." --selected "exit" "exit" "set-environment" "build" "up" "down" "restart" "logs" "inspect" "shell" "composer-dump" "composer-install" "composer-update" "composer-require" "composer-require-dev" "get-xdebug-client-host" "check-syntax" "check-style" "fix-style" "phpstan" "test" "coverage" "install-caddy-certificate" "install-skeleton" "install-laravel" "install-symfony" "uninstall-app" "open-website"))
 	@$(MAKE) ${OPTION}
 
 ###
@@ -211,6 +211,16 @@ composer-require:
 composer-require-dev:
 	$(call showInfo,"Executing [ composer require --dev ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer require --dev
+	$(call taskDone)
+
+###
+# DEBUG
+###
+
+.PHONY: get-xdebug-client-host
+get-xdebug-client-host:
+	$(call showInfo,"Inspecting [ $(SERVICE_APP) ] networks settings...")
+	@docker inspect --format "{{json .NetworkSettings.Networks.docker_default.Gateway}}" $(SERVICE_APP) | jq -r
 	$(call taskDone)
 
 ###
