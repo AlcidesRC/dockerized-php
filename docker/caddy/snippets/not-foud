@@ -1,0 +1,9 @@
+(not-found) {
+    @static_404 {
+        path_regexp \.(jpg|jpeg|png|webp|gif|avif|ico|svg|css|js|gz|eot|ttf|otf|woff|woff2|pdf)$
+        not file
+    }
+    respond @static_404 "Not Found" 404 {
+        close
+    }
+}

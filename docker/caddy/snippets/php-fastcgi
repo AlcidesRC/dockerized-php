@@ -1,0 +1,9 @@
+(php-fastcgi) {
+    php_fastcgi {$CADDY_PHPFPM_GATEWAYS} {
+        index index.php
+
+        resolve_root_symlink
+
+        lb_policy round_robin
+    }
+}

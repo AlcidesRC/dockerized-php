@@ -5,9 +5,14 @@
 import snippets/*
 
 {$CADDY_HOSTNAME} {
+    import strip-www
     import common
+    import cache
+    import security
     import ssl
-    import domain
+    import not-found
 
     root * /var/www/html/public
+
+    import php-fastcgi
 }

@@ -1,0 +1,20 @@
+(security) {
+    header {
+        Strict-Transport-Security "max-age=31536000;includeSubDomains;preload"
+        X-Frame-Options "SAMEORIGIN"
+        X-Xss-Protection "1;mode=block"
+        Referrer-Policy "no-referrer-when-downgrade"
+        X-Content-Type-Options "nosniff"
+        Permissions-Policy "autoplay=(self),camera=(),geolocation=(),microphone=(),payment=(),usb=()"
+
+        # Review
+        #?Content-Security-Policy "default-src 'self';script-src 'self';style-src 'self'"
+    }
+
+    @excludedMethods {
+        not method GET HEAD POST OPTIONS
+    }
+    respond @excludedMethods "Not Allowed" 405 {
+        close
+    }
+}
