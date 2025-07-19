@@ -1,0 +1,68 @@
+(header) {
+    header {
+        # CORS
+
+		Vary Origin
+		Access-Control-Allow-Origin "{header.origin}"
+		Access-Control-Expose-Headers "Authorization"
+		Access-Control-Allow-Credentials "true"
+
+        # CACHE
+
+        Cache-Control "public, max-age=31536000"
+
+        # SECURITY
+
+        Strict-Transport-Security "max-age=31536000;includeSubDomains;preload"
+
+        Referrer-Policy "no-referrer-when-downgrade"
+
+        Content-Security-Policy "upgrade-insecure-requests"
+
+        X-Forwarded-For {http.request.remote.host}
+        X-Content-Type-Options "nosniff"
+        ?X-Frame-Options "SAMEORIGIN"
+        ?X-XSS-Protection "1;mode=block"
+
+        Permissions-Policy "autoplay=(self),camera=(),geolocation=(),microphone=(),payment=(),usb=()"
+        Feature-Policy "accelerometer 'none'; ambient-light-sensor 'none'; autoplay 'self'; camera 'none'; encrypted-media 'none'; fullscreen 'self'; geolocation 'none'; gyroscope 'none'; magnetometer 'none'; microphone 'none'; midi 'none'; payment 'none'; picture-in-picture *; speaker 'none'; sync-xhr 'none'; usb 'none'; vr 'none'"
+
+        -Server
+        -X-Powered-By
+    }
+
+    # SECURITY
+
+    @excludedMethods {
+        not method GET HEAD POST OPTIONS
+    }
+    respond @excludedMethods "Not Allowed" 405 {
+        close
+    }
+
+    # CACHE
+
+    @static {
+        file
+        path *.avif *.ico *.css *.js *.gz *.eot *.ttf *.otf *.gif *.webp *.avif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.pdf
+    }
+    header @static Cache-Control "max-age=31536000,public,inmutable"
+
+    @html {
+        path *.html *.htm
+    }
+    header @html {
+        Cache-Control "public, max-age=43200"
+    }
+
+    # CORS
+
+    @cors_preflight method OPTIONS
+    handle @cors_preflight {
+        header {
+            Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+            Access-Control-Max-Age "3600"
+        }
+        respond "" 204
+    }
+}

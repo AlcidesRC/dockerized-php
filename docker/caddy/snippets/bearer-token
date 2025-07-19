@@ -1,0 +1,15 @@
+(bearer-token) {
+    @authorized {
+        header Authorization "{$CADDY_AUTHORIZATION_METHOD} {$CADDY_AUTHORIZATION_TOKEN}"
+    }
+
+    @unauthorized {
+        not {
+            header Authorization "{$CADDY_AUTHORIZATION_METHOD} {$CADDY_AUTHORIZATION_TOKEN}"
+        }
+    }
+
+    respond @unauthorized "Unauthorized" 401 {
+        close
+    }
+}

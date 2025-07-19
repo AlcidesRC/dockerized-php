@@ -9,7 +9,7 @@
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
          bootstrap="vendor/autoload.php"
-         cacheDirectory=".phpunit.result.cache"
+         cacheDirectory="/tmp/.phpunit.result.cache"
          cacheResult="false"
          colors="true"
          executionOrder="random"
@@ -18,7 +18,7 @@
          requireCoverageMetadata="true"
 >
     <testsuites>
-        <testsuite name="Application Test Suite">
+        <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
         </testsuite>
     </testsuites>

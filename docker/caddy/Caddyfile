@@ -5,14 +5,13 @@
 import snippets/*
 
 {$CADDY_HOSTNAME} {
-    import strip-www
+    #import bearer-token
     import common
-    import cache
-    import security
-    import ssl
+    import header
     import not-found
+    import php-fastcgi
+    import remove-www
+    import ssl
 
     root * /var/www/html/public
-
-    import php-fastcgi
 }

@@ -1,0 +1,7 @@
+(remove-www) {
+    @strip_www {
+        header_regexp www Host ^www\.(.*)$
+    }
+
+    redir @strip_www http://{http.regexp.www.1}{uri}
+}
