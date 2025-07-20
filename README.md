@@ -311,20 +311,6 @@ PHP application must be placed into `src` folder.
 
 
 
-##### Testing
-
-###### Mocking Date/Time functions
-
-Testing with date and/or time variations sometimes can be a nightmare. To assist on this topic the **UOPZ** extension has been installed and enabled by default.
-
-
-
-> [!TIP]
->
-> You can use [slope-it/clock-mock](https://github.com/slope-it/clock-mock) as a development dependency when mocking date/time functions. 
-
-
-
 ### Development
 
 #### Set the environment
