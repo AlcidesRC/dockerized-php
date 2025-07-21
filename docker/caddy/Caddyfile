@@ -7,7 +7,7 @@ import snippets/*
 {$CADDY_HOSTNAME} {
     #import bearer-token
     import common
-    import header
+    import header {header.origin}
     import not-found
     import php-fastcgi
     import remove-www
