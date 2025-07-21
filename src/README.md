@@ -3,7 +3,7 @@
 # PHP Skeleton
 
 
-> An application skeleton for modern PHP projects. 
+> An application skeleton for modern PHP projects, PoC, side-projects... 
 
 
 [TOC]
@@ -17,7 +17,7 @@ This repository contains an application skeleton following best practices.
 ### Highlights
 
 - Minimalist project 
-- Includes frequently used tools such as a **Linter**, **PHPStan**, **PHPUnit**, **ClockMock**, **CodeSniffer** and **VarDumper**.
+- Includes frequently used tools such as a **Linter**, **PHPStan**, **PHPUnit**, **CodeSniffer** and **VarDumper**.
 
 
 ## Requirements
@@ -68,15 +68,15 @@ Custom commands are added to `composer.json` under the `scripts` section.
 
 ##### Available commands
 
-| Command    | Description                                                  |
-| ---------- | ------------------------------------------------------------ |
-| `linter`   | Runs the linter in parallel mode                             |
-| `phpcs`    | Runs **PHP Check Style** command following the PSR-12        |
-| `phpcbf`   | Runs **PHP Code Beautifier** and **Fixer** command following the PSR-12 |
+| Command    | Description                                                                  |
+| ---------- |------------------------------------------------------------------------------|
+| `linter`   | Runs the linter in parallel mode                                             |
+| `phpcs`    | Runs **PHP Check Style** command following the PSR-12                        |
+| `phpcbf`   | Runs **PHP Code Beautifier** and **Fixer** command following the PSR-12      |
 | `phpstan`  | Runs **PHPStan** with the specs defined at `phpstan.neon` configuration file |
-| `phpunit`  | Runs **PHPUnit** with the specs defined at `phpunit.xml` configuration file |
-| `tests`    | Runs **PHPUnit** without code coverage support               |
-| `coverage` | Runs **PHPUnit** with **PCOV** code coverage support         |
+| `phpunit`  | Runs **PHPUnit** with the specs defined at `phpunit.xml` configuration file  |
+| `tests`    | Runs **PHPUnit** without code coverage support                               |
+| `coverage` | Runs **PHPUnit** with **PCOV** code coverage support                         |
 
 #### Makefile
 

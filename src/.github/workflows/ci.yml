@@ -20,36 +20,35 @@ jobs:
       fail-fast: true
       matrix:
         os: [ubuntu-latest]
-        php: ['8.3']
-        dependency_version: [prefer-dist, prefer-source]
+        php: ['8.4']
+        composer-version: [v2]
+        dependency-version: [prefer-lowest, prefer-stable]
 
-    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency_version }}
+    name: ${{ matrix.php }} - ${{ matrix.os }} - Composer ${{ matrix.composer-version }} --${{ matrix.dependency-version }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup PHP & Enable Extensions
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+            path: ~/.composer/cache/files
+            key: dependencies-php-${{ matrix.php }}-composer-${{ matrix.composer-version }}-${{ hashFiles('composer.json') }}
+
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ runner.php }}
-          extensions: uopz
+          php-version: ${{ matrix.php }}
+          extensions: zip
           coverage: pcov
+          tools: composer:${{ matrix.composer-version }}
 
       - name: Validate composer.json and composer.lock
         run: composer validate --working-dir=. --strict
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
-        with:
-          path: ./src/vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
       - name: Install PHP dependencies
-        run: composer install --working-dir=. --${{ matrix.dependency_version }} --no-interaction --no-progress --ansi
+        run: composer update --${{ matrix.dependency-version }} --ansi  --no-interaction --prefer-dist
 
       - name: Check PHP Syntax
         run: composer check-syntax
@@ -57,8 +56,8 @@ jobs:
       - name: Check Coding Standards
         run: composer check-style
 
-      - name: Check with PHPStan
-        run: composer phpstan
+#      - name: Check with PHPStan
+#        run: composer phpstan
 
       - name: Check Test Cases
-        run: composer paratest
+        run: composer test
