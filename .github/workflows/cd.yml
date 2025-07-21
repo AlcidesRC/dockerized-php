@@ -1,0 +1,40 @@
+name: Continuous Deployment
+
+#on:
+#    workflow_dispatch:
+#    workflow_run:
+#        workflows:
+#            - "Continuous Integration"
+#        types:
+#            - completed
+
+permissions:
+    contents: read
+
+jobs:
+    build-and-deploy:
+        name: Build & Deploy
+
+        runs-on: ubuntu-latest
+
+        env:
+            ENV: PRODUCTION
+
+        steps:
+            - name: Deploying via SSH
+              uses: appleboy/ssh-action@v1.2.2
+              with:
+                  host: ${{ secrets.HOST }}
+                  username: ${{ secrets.USERNAME }}
+                  password: ${{ secrets.PASSWORD }}
+                  port: ${{ secrets.PORT }}
+                  script: |
+                      sudo apt update && sudo apt upgrade -y
+                      docker buildx prune --force
+                      mkdir --parents /var/www/html/dockerized-php
+                      cd /var/www/html
+                      git -C dockerized-php pull || git clone git@github.com:AlcidesRC/dockerized-php.git .
+                      cd dockerized-php
+                      git fetch -ap && git reset --hard && git clean -fd && git pull
+                      unlink .env.makefile && echo "APP_ENV=prod" > .env.makefile
+                      make deploy
