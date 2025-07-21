@@ -68,6 +68,10 @@ endef
 # MISCELANEOUS
 ###
 
+.PHONY: clean-up
+clean-up:
+	@git fetch -ap && git reset --hard && git clean -fd && git pull
+
 .PHONY: set-environment
 set-environment:
 	$(eval APP_ENV=$(shell gum choose --header "Setting up Makefile environment..." --selected "dev" "dev" "prod"))
@@ -296,6 +300,14 @@ uninstall-app: require-confirmation
     	gum spin --spinner dot --title "Nothing to do..." -- sleep 1 ; \
 	fi;
 	$(MAKE) help
+
+###
+# CI/CD
+###
+
+.PHONY: deploy
+deploy: clean-up build up ## Application: deploys the application
+	$(call taskDone)
 
 ###
 # SHORTCUTS
