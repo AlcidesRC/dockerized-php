@@ -1,0 +1,9 @@
+(not_allowed_methods) {
+    @excludedMethodsList {
+        not method GET POST
+    }
+
+    respond @excludedMethodsList "Not Allowed" 405 {
+        close
+    }
+}

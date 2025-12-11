@@ -1,4 +1,4 @@
-(php-fastcgi) {
+(php_fastcgi) {
     php_fastcgi {$CADDY_PHPFPM_GATEWAYS} {
         index index.php
 

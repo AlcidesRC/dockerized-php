@@ -1,0 +1,16 @@
+(cors_preflight) {
+    @cors_preflight {
+		method OPTIONS
+	}
+
+    handle @cors_preflight {
+        header {
+            Access-Control-Allow-Origin *
+            Access-Control-Allow-Credentials true
+            Access-Control-Allow-Headers Authorization,Content-Type,Auth-Token,Access-Token
+            Access-Control-Allow-Methods *
+            Access-Control-Max-Age 3600
+        }
+        respond "" 204
+    }
+}

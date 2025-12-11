@@ -5,13 +5,12 @@
 import snippets/*
 
 {$CADDY_HOSTNAME} {
-    #import bearer-token
+    import remove_www
+    import unauthorized
+    import not_found
     import common
-    import header {header.origin}
-    import not-found
-    import php-fastcgi
-    import remove-www
-    import ssl
+    import cors_preflight
+    import php_fastcgi
 
     root * /var/www/html/public
 }

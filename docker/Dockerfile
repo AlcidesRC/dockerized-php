@@ -4,7 +4,7 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.4.10-fpm-alpine AS base-image
+FROM php:8.5-fpm-alpine AS base-image
 
 #----------------------------------------------------------
 # STAGE: COMMON
@@ -58,7 +58,7 @@ ARG HOST_GROUP_NAME=host-groupname
 ENV ENV=DEVELOPMENT
 
 # Add __ONLY__ compiled extensions & their config files
-COPY --from=extensions-builder-development /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20240924/
+COPY --from=extensions-builder-development /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20250925/
 COPY --from=extensions-builder-development /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add Composer from public Docker image
@@ -141,7 +141,7 @@ FROM common AS build-production
 ENV ENV=PRODUCTION
 
 # Add __ONLY__ compiled extensions & their config files
-COPY --from=extensions-builder-required /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20240924/
+COPY --from=extensions-builder-required /usr/local/lib/php/extensions/*/* /usr/local/lib/php/extensions/no-debug-non-zts-20250925/
 COPY --from=extensions-builder-required /usr/local/etc/php/conf.d/* /usr/local/etc/php/conf.d/
 
 # Add the optimized for production application

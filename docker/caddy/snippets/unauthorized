@@ -1,0 +1,13 @@
+(unauthorized) {
+    @unauthorized {
+        not {
+           header Authorization "{$CADDY_AUTHORIZATION_METHOD} {$CADDY_AUTHORIZATION_TOKEN}"
+        }
+    }
+
+    handle_path /privated/* {
+        respond @unauthorized "Unauthorized" 401 {
+            close
+        }
+    }
+}

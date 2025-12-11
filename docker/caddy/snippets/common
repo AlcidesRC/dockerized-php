@@ -1,7 +1,7 @@
 (common) {
     encode zstd gzip
 
-    file_server
+    respond /caddy/healthcheck "UP" 200
 
-    respond /healthcheck "UP" 200
+    file_server
 }

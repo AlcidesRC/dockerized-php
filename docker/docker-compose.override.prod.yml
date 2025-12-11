@@ -5,7 +5,7 @@ services:
             service: caddy
         environment:
             - CADDY_TLS=internal
-            - CADDY_HOSTNAME=localhost
+            - CADDY_HOSTNAME=app.localhost
             - CADDY_PHPFPM_GATEWAYS=app1:9000
         depends_on:
             app1:
