@@ -257,13 +257,13 @@ phpstan:
 
 .PHONY: test
 test:
-	$(call showInfo,"Executing [ composer paratest ] inside [ $(SERVICE_APP) ] container service...")
+	$(call showInfo,"Executing [ composer test ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer test
 	$(call taskDone)
 
 .PHONY: coverage
 coverage:
-	$(call showInfo,"Executing [ composer paracoverage ] inside [ $(SERVICE_APP) ] container service...")
+	$(call showInfo,"Executing [ composer coverage ] inside [ $(SERVICE_APP) ] container service...")
 	@$(DOCKER_RUN_AS_USER) composer coverage
 	$(call taskDone)
 

@@ -154,12 +154,12 @@ phpstan: ## QA: executes <composer phpstan> inside the container
 test: ## QA: executes <composer paratest> inside the container
 	$(call showInfo,"Executing \<composer paratest\>...")
 	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer paratest
+	@$(DOCKER_RUN_AS_USER) composer test
 	$(call taskDone)
 
 .PHONY: coverage
 coverage: ## QA: executes <composer paracoverage> inside the container
 	$(call showInfo,"Executing \<composer paracoverage\>...")
 	@echo ""
-	@$(DOCKER_RUN_AS_USER) composer paracoverage
+	@$(DOCKER_RUN_AS_USER) composer coverage
 	$(call taskDone)
