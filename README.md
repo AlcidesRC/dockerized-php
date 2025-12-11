@@ -14,7 +14,7 @@
 
 ## Summary
 
-This repository contains a _dockerized_ environment for building PHP applications based on **php:8.4.10-fpm-alpine** with Caddy support.
+This repository contains a _dockerized_ environment for building PHP applications based on **php:8.5-fpm-alpine** with Caddy support.
 
 ### Highlights
 
@@ -79,15 +79,15 @@ $ git clone git@github.com:AlcidesRC/dockerized-php.git .
 
 ##### Defined Stages
 
-| Name                             | Description                                                  |
-| -------------------------------- | ------------------------------------------------------------ |
-| `base-image`                     | Used to define the base Docker image                         |
-| `common`                         | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc. |
-| `extensions-builder-required`    | Used to build required PHP extensions                        |
-| `extensions-builder-development` | Used to build **development** PHP extensions                 |
-| `build-development`              | Used to build the development environment                    |
+| Name                             | Description                                                                          |
+| -------------------------------- |--------------------------------------------------------------------------------------|
+| `base-image`                     | Used to define the base Docker image                                                 |
+| `common`                         | Used to define generic variables: `WORKDIR`, `HEALTCHECK`, etc.                      |
+| `extensions-builder-required`    | Used to build required PHP extensions                                                |
+| `extensions-builder-development` | Used to build **development** PHP extensions                                         |
+| `build-development`              | Used to build the development environment                                            |
 | `optimize-php-dependencies`      | Used to optimize the PHP dependencies in production by removing the development ones |
-| `build-production`               | Used to build the **production** environment                 |
+| `build-production`               | Used to build the **production** environment                                         |
 
 ###### Defined Stages Hierarchy
 
@@ -217,7 +217,7 @@ A *Makefile* is provided with following commands:
 ║                                                                                ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                          
-🔹 DOMAIN URL .... https://localhost                                            
+🔹 DOMAIN URL .... https://app.localhost                                            
 🔹 SERVICE(S) .... caddy app1                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
@@ -262,7 +262,7 @@ This project uses Caddy as main web server which <u>provides HTTPS by default</u
 
 ##### Default Domain
 
-The default website domain is https://localhost
+The default website domain is https://app.localhost
 
 
 
@@ -328,7 +328,7 @@ $ make set-environment
 ║                                                                                ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
-🔹 DOMAIN URL .... https://localhost                                            
+🔹 DOMAIN URL .... https://app.localhost                                            
 🔹 SERVICE(S) .... caddy app1                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
@@ -401,7 +401,7 @@ $ make set-environment
 ║                                                                                ║
 ╚════════════════════════════════════════════════════════════════════════════════╝
 🔹 ENVIRONMENT ... dev                                                         
-🔹 DOMAIN URL .... https://localhost                                            
+🔹 DOMAIN URL .... https://app.localhost                                            
 🔹 SERVICE(S) .... caddy app1                                                   
 🔹 USER .......... (1000) alcidesramos                                          
 🔹 GROUP ......... (1000) alcidesramos                                          
