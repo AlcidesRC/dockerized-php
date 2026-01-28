@@ -12,7 +12,7 @@ permissions:
     contents: read
 
 jobs:
-    if: github.repository == 'xxxxxx'
+    if: github.repository == 'alcidesrc/xxxxxx'
     build-and-deploy:
         name: Build & Deploy
 
