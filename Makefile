@@ -109,11 +109,11 @@ welcome:
 	$(eval SERVICES=$(shell docker ps --format '{{.Names}}'))
 	@clear
 	@gum style --align center --width 80 --padding "1 2" --border double --border-foreground 99 ".: AVAILABLE COMMANDS :."
-	@echo ':small_blue_diamond: HOST USER ..... {{ Color "212" "0" " ($(HOST_USER_ID)) $(HOST_USER_NAME) " }}' | gum format -t emoji | gum format -t template; echo ''
-	@echo ':small_blue_diamond: HOST GROUP .... {{ Color "212" "0" " ($(HOST_GROUP_ID)) $(HOST_GROUP_NAME) " }}' | gum format -t emoji | gum format -t template; echo ''
-	@echo ':small_blue_diamond: ENVIRONMENT ... {{ Color "212" "0" " $(APP_ENV) " }}' | gum format -t emoji | gum format -t template; echo ''
-	@echo ':small_blue_diamond: DOMAIN URL .... {{ Color "212" "0" " $(WEBSITE_URL) " }}' | gum format -t emoji | gum format -t template; echo ''
-	@echo ':small_blue_diamond: SERVICE(S) .... {{ Color "212" "0" " $(SERVICES) " }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: HOST USER ..... {{ Color "212" "0" "($(HOST_USER_ID)) $(HOST_USER_NAME)" }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: HOST GROUP .... {{ Color "212" "0" "($(HOST_GROUP_ID)) $(HOST_GROUP_NAME)" }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: ENVIRONMENT ... {{ Color "212" "0" "$(APP_ENV)" }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: DOMAIN URL .... {{ Color "212" "0" "$(WEBSITE_URL)" }}' | gum format -t emoji | gum format -t template; echo ''
+	@echo ':small_blue_diamond: SERVICE(S) .... {{ Color "212" "0" "$(SERVICES)" }}' | gum format -t emoji | gum format -t template; echo ''
 	@echo ''
 
 ###
