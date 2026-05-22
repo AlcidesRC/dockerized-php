@@ -1,8 +1,10 @@
-{
-    admin off
-}
-
 import snippets/*
+
+:80 {
+    handle /healthcheck {
+        respond "OK" 200
+    }
+}
 
 {$CADDY_HOSTNAME} {
     import remove_www

@@ -5,7 +5,7 @@ volumes:
 services:
     caddy:
         container_name: caddy
-        image: caddy:2.10-alpine
+        image: caddy:2.11.3-alpine
         restart: unless-stopped
         volumes:
             - caddy_data:/data
@@ -18,7 +18,7 @@ services:
             - 443:443
             - 443:443/udp
         healthcheck:
-            test: ["CMD", "wget", "--no-check-certificate", "--spider", "https://localhost/healthcheck"]
+            test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/healthcheck" ]
             interval: 30s
             timeout: 1s
             retries: 3
