@@ -5,7 +5,7 @@ volumes:
 services:
     caddy:
         container_name: caddy
-        image: caddy:2.11.3-alpine
+        image: caddy:2.11.4-alpine
         restart: unless-stopped
         volumes:
             - caddy_data:/data

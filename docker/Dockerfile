@@ -4,7 +4,7 @@
 # STAGE: BASE-IMAGE
 #----------------------------------------------------------
 
-FROM php:8.5.6-fpm-alpine3.22 AS base-image
+FROM php:8.5.9-fpm-alpine3.24 AS base-image
 
 #----------------------------------------------------------
 # STAGE: COMMON
